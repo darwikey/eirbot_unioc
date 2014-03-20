@@ -1,0 +1,16 @@
+# Aversive configuration
+MCU = atmega128
+OPT = s
+FORMAT = ihex
+FORMAT_EXTENSION = hex
+MATH_LIB = -lm
+PRINTF_LDFLAGS = -Wl,-u,vfprintf -lprintf_flt
+CFLAGS += -D__STDIO_FDEVOPEN_COMPAT_12
+PROGRAMMER = avrdude
+AVRDUDE_PROGRAMMER = stk200
+AVRDUDE_PORT = "/dev/parport0"
+AVARICE_PROGRAMMER = mkI
+AVARICE_PORT = "/dev/ttyS0"
+AVARICE_DEBUG_PORT = 1234
+MODULES = comm/uart hardware/pwm hardware/gp2d12 hardware/adc devices/control_system/filters/int devices/control_system/filters/diff devices/control_system/filters/numfilter devices/control_system/filters/pid devices/control_system/filters/ramp devices/control_system/filters/quadramp devices/control_system/control_system_manager base/time base/scheduler base/wait base/list debug/error base/math/vect2 comm/i2c_ryder base/utils
+
