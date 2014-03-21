@@ -1,0 +1,4 @@
+In file included from ../../../../../aversive//modules/base/wait/wait.h:45,
+                 from main.c:2:
+/usr/lib/gcc/avr/4.3.5/../../../avr/include/avr/delay.h:36:2: warning: #warning "This file has been moved to <util/delay.h>."
+avr-objcopy: --change-section-lma .eeprom=0x00000000 never used

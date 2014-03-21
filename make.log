@@ -1,0 +1,138 @@
+Generating compiler_files/main.avr.d
+avr-gcc (GCC) 4.3.5
+Copyright (C) 2008 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Size before:
+   text	   data	    bss	    dec	    hex	filename
+  35748	    878	   2358	  38984	   9848	main.elf
+
+
+Processing MD5:
+8192
+
+
+------ Compiling Module: comm/uart
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: hardware/pwm
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: hardware/gp2d12
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: hardware/adc
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: devices/control_system/filters/int
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: devices/control_system/filters/diff
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: devices/control_system/filters/numfilter
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: devices/control_system/filters/pid
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: devices/control_system/filters/ramp
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: devices/control_system/filters/quadramp
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: devices/control_system/control_system_manager
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: base/time
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: base/scheduler
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: base/wait
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: base/list
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: debug/error
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: base/math/vect2
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: comm/i2c_ryder
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+------ Compiling Module: base/utils
+make[1]: entrant dans le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+make[1]: Rien à faire pour « all ».
+make[1]: quittant le répertoire « /work/code/aversive.b_eirbot/projects/coupe2014/1A/test_unioc »
+
+Compiling: main.c
+avr-gcc -c -D__STDIO_FDEVOPEN_COMPAT_12 -g  -Os -Wall -Wstrict-prototypes -I. -I../../../../../aversive//include -I../../../../../aversive//modules -I../../../../../aversive//modules/comm/uart -I../../../../../aversive//modules/hardware/pwm -I../../../../../aversive//modules/hardware/gp2d12 -I../../../../../aversive//modules/hardware/adc -I../../../../../aversive//modules/devices/control_system/filters/int -I../../../../../aversive//modules/devices/control_system/filters/diff -I../../../../../aversive//modules/devices/control_system/filters/numfilter -I../../../../../aversive//modules/devices/control_system/filters/pid -I../../../../../aversive//modules/devices/control_system/filters/ramp -I../../../../../aversive//modules/devices/control_system/filters/quadramp -I../../../../../aversive//modules/devices/control_system/control_system_manager -I../../../../../aversive//modules/base/time -I../../../../../aversive//modules/base/scheduler -I../../../../../aversive//modules/base/wait -I../../../../../aversive//modules/base/list -I../../../../../aversive//modules/debug/error -I../../../../../aversive//modules/base/math/vect2 -I../../../../../aversive//modules/comm/i2c_ryder -I../../../../../aversive//modules/base/utils  -std=gnu99 -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -mmcu=atmega128  -Wa,-adhlns=compiler_files/main.avr.lst main.c -o compiler_files/main.avr.o
+
+Linking: main.elf
+avr-gcc compiler_files/main.avr.o compiler_files/position_manager.avr.o compiler_files/fxx.avr.o compiler_files/asserv_manager.avr.o compiler_files/trajectory_manager.avr.o compiler_files/modulo.avr.o compiler_files/astar.avr.o compiler_files/avoidance.avr.o compiler_files/gp2.avr.o compiler_files/antipatinage.avr.o compiler_files/uart.avr.a compiler_files/pwm.avr.a compiler_files/gp2d12.avr.a compiler_files/adc.avr.a compiler_files/int.avr.a compiler_files/diff.avr.a compiler_files/numfilter.avr.a compiler_files/pid.avr.a compiler_files/ramp.avr.a compiler_files/quadramp.avr.a compiler_files/control_system_manager.avr.a compiler_files/time.avr.a compiler_files/scheduler.avr.a compiler_files/wait.avr.a compiler_files/list.avr.a compiler_files/error.avr.a compiler_files/vect2.avr.a compiler_files/i2c_ryder.avr.a compiler_files/utils.avr.a --output main.elf -mmcu=atmega128 -Wl,-u,vfprintf -lprintf_flt -Wl,-Map=compiler_files/main.map,--cref -lm
+
+Creating load file for Flash: main.hex
+avr-objcopy -O ihex -R .eeprom main.elf main.hex
+
+Creating load file for EEPROM: main.eep
+avr-objcopy -j .eeprom --set-section-flags=.eeprom="alloc,load" \
+	--change-section-lma .eeprom=0 -O ihex main.elf main.eep
+
+Creating Extended Listing: compiler_files/main.lss
+avr-objdump -h -S main.elf > compiler_files/main.lss
+
+Creating Symbol Table: compiler_files/main.sym
+avr-nm -n main.elf > compiler_files/main.sym
+
+Size after:
+   text	   data	    bss	    dec	    hex	filename
+  35754	    878	   2358	  38990	   984e	main.elf
+
+
+Processing MD5:
+d2ad
+
