@@ -21,6 +21,7 @@ ASRC =
 ##
 
 -include .aversive_conf
+CFLAGS += -D__AVR_LIBC_DEPRECATED_ENABLE__=1
 include $(AVERSIVE_DIR)/mk/aversive_project.mk
 
 #######################################################################
