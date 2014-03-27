@@ -1,6 +1,5 @@
 #include "astar.h"
 #include <stdio.h>
-#include "avoidance.h"
 
 extern trajectory_manager_t traj;
 
@@ -10,7 +9,6 @@ uint8_t startCoor;
 uint8_t goalCoor;
 
 int stopMovement = 0;
-
 
 uint8_t aStarLoop()
 {
@@ -514,7 +512,7 @@ mvStack stack;//pile d'instructions
 int8_t astarMv()
 {
   stopMovement = 0;
-set_detection_behaviour(BEHAVIOUR_ASTAR);  
+  
     
   //init graphe
   uint8_t i = 0;
@@ -567,7 +565,6 @@ set_detection_behaviour(BEHAVIOUR_ASTAR);
   while(!trajectory_is_ended(&traj));
   printf("end stack \n");
 
-set_detection_behaviour(BEHAVIOUR_STOP);
   if(stopMovement == 1)
     {
       return 0;

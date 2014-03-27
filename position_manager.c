@@ -204,9 +204,8 @@ fxx position_get_y_cm(position_manager_t *pm)
 // renvoie la position courante dans le graphe
 uint8_t position_get_coor(position_manager_t *pm)
 {
-      // prend en compte le decallage initiale
-      double posx = pm->y * pm->c_imp2cm + 20.0;
-      double posy = pm->x * pm->c_imp2cm + 20.0;
+      double posx = pm->y * pm->c_imp2cm ;
+      double posy = pm->x * pm->c_imp2cm ;
             
       // Calcule la coordonné la plus proche d'un noeud
       uint8_t shift_x = ((int)posx) % UNIT >= UNIT/2;
@@ -234,3 +233,18 @@ int32_t position_rad2imp(position_manager_t *pm,fxx rad)
 }
 
 
+void position_set_x_cm(position_manager_t *pm,fxx x_cm)
+{
+  pm->x = fxx_div(x_cm,pm->c_imp2cm);
+}
+
+void position_set_y_cm(position_manager_t *pm,fxx y_cm)
+{
+  pm->y = fxx_div(y_cm,pm->c_imp2cm);
+}
+
+
+void position_set_angle_deg(position_manager_t *pm,fxx deg)
+{
+  pm->angle = deg;
+}

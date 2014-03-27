@@ -19,7 +19,7 @@
 #include <uart.h>
 #include "trajectory_manager.h"
 #include "modulo.h"
-
+#include "antipatinage.h"
 
 static int8_t couleur_depart = 0;//devra valoir 1 ou -1 selon si on démarre en rouge ou en bleu, pour le mutick,(void*)t,ROBOT_PM_UPDATE_TIME/SCHEDULER_UNIT);
 
@@ -177,6 +177,7 @@ uint8_t trajectory_is_paused(trajectory_manager_t *t)
 //Checker si un mouvement est fini
 uint8_t trajectory_is_ended(trajectory_manager_t *t)
 {
+  antipatinage_scheduler();
 	if(t->current == t->last) {
 		return 1;
 	} else {

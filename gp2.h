@@ -8,8 +8,7 @@
 
 enum gp2_type
   {
-    GP2_RIGHT,
-    GP2_LEFT
+    GP2_RIGHT,GP2_LEFT
   };
 
 // Donne la distance en cm de l'objet capté enfonction de la valeur de l'adc

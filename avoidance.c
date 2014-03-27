@@ -36,65 +36,81 @@ void adversary_detection_traj(void*p)
   // désactive le scheduler pour éviter qu'il se déclenche pendant le calcul
   scheduler_del_event(id_scheduler);
 
-  int coor = gp2_get_coor_obstacle(GP2_RIGHT, 40);
- 
+  int coorD = gp2_get_coor_obstacle(GP2_RIGHT, 40);
+
+  int coorG = gp2_get_coor_obstacle(GP2_LEFT,40);
 
   // check si on a détecté quelque chose
-  if (coor != -1)
-    {
-      printf("adversary detection :  noeud : %d, %d \n", coor % G_LENGTH, coor / G_LENGTH);
 
-      uint8_t obstacle = graphe[coor].type == OBSTACLE;
+  if (coorD != -1 || coorG != -1)
+  {
+    uint8_t obstacle = 0;
+    int coor;
+    if(coorD != -1)
+      {
+        obstacle = graphe[coorD].type == OBSTACLE;
+        coor = coorD;
+        printf("coorD%d\n",coorD );
+      }
+    if(coorG != -1 && obstacle != 0)
+    {
+      obstacle = graphe[coorD].type == OBSTACLE;
+      coor = coorG;
+      printf("coorG %d\n",coorG );
+    }
+
+
+    printf("adversary detection :  noeud : %d, %d \n", coor % G_LENGTH, coor / G_LENGTH);
 
       // Si c'est un obstacle non connu on panique
-      if(!obstacle)
-	{
-	  printf("stop the trajectory \n");
-	    
-	  switch (detection_behaviour)
-	    {
-	    case BEHAVIOUR_STOP:
-	      trajectory_pause(&traj);
-	      break;
-	      
- 	    case BEHAVIOUR_ASTAR:
-	      if(new_obstacle(coor))
-  		{
+    if(!obstacle)
+    {
+     printf("stop the trajectory \n");
+
+     switch (detection_behaviour)
+     {
+       case BEHAVIOUR_STOP:
+       trajectory_pause(&traj);
+       break;
+
+       case BEHAVIOUR_ASTAR:
+       if(new_obstacle(coor))
+       {
 		  if(obstacleInTrajectory(get_startCoor(),get_goalCoor()))//need goalcoor
-		    {
-		      
-		      trajectory_reinit(&traj);
-		      asserv_stop(&asserv);
-		      
-		      stopAstarMovement();
-		      
+      {
+        
+          trajectory_reinit(&traj);
+        asserv_stop(&asserv);
+
+        stopAstarMovement();
+
 		      //trajectory_resume(&traj);
-		      printf("succeed to stop trajectory \n");
-		      
-		      go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));//attention x et y inverser
+        printf("succeed to stop trajectory \n");
+        
+  		      go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));//attention x et y inverser
 		    }
-		}  
-	      else
-		{
-		  printf("OK obstacle doesn't matter\n");
-		}
-	      break;
-	    }
-	}
-      else // rien détecté
-	{
-	  if(trajectory_is_paused(&traj))
-	    {
-	      printf("resume the trajectory\n");
-	      trajectory_resume(&traj);
-	    }
-	}
+      }  
+      else
+      {
+        printf("OK obstacle doesn't matter\n");
+      }
+      break;
+      }
     }
-      
+      else // rien détecté
+      {
+       if(trajectory_is_paused(&traj))
+       {
+         printf("resume the trajectory\n");
+         trajectory_resume(&traj);
+       }
+     }
+   }
+
   // réactive le scheduler
-  id_scheduler = scheduler_add_periodical_event(adversary_detection_traj,NULL, 500000/SCHEDULER_UNIT);
-}
-  
+   id_scheduler = scheduler_add_periodical_event(adversary_detection_traj,NULL, 500000/SCHEDULER_UNIT);
+ }
+
   
   // Planifie une trajectoire pour aller au noeud le plus proche 
   //not optimized because le robot retourne sur ses pas

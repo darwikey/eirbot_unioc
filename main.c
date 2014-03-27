@@ -92,7 +92,7 @@ int main(void)
   printf("init i2c \n");
   scheduler_init();
 
-  avoidance_init();
+  //avoidance_init();
   antipatinage_init();
 
   position_init(&pos);
@@ -111,16 +111,36 @@ int main(void)
   initObstacle();
 
   //init méca
-  mecaCom(TIROIR_FERMER);
-  mecaCom(PEIGNE_FERMER);
+  //mecaCom(TIROIR_FERMER);
+  //mecaCom(PEIGNE_FERMER);
 	
   uint8_t team = RED;//YELLOW; 
- 
-
+  
+  for(int i = 0; i<10;i++)
+    {
+      position_set_x_cm(&pos,10.f*i);
+      fxx pX = position_get_x_cm(&pos);
+      position_set_y_cm(&pos,10.f*i);
+      fxx pY = position_get_y_cm(&pos);
+      printf("posx: %f,posy: %f \n",pX,pY);
+      
+      
+    }
+  while(1);
+  
+  
   while(MAXIME);//boucle anti_maxime
 
+
+//while(1)
+//{
+  //printf("pin6: %d ",PINE & 0x10);
+
   
-  //test_evitement();
+//}
+
+  
+  test_evitement();
 
   if(team == RED)
     {
@@ -337,7 +357,7 @@ int main(void)
 
       trajectory_goto_d(&traj, END, 10);
       while(!trajectory_is_ended(&traj));
-      
+       
 
       trajectory_goto_a(&traj, END, 180);
       while(!trajectory_is_ended(&traj));
@@ -441,6 +461,7 @@ uint8_t mecaCom(uint8_t ordre)
       if(ordre != mecaReady)
 	{
 	  // C'est ici que l'on recoit effectivement la reponse de la meca
+          
 	  result = ordre; 
 	}
       wait_ms(50);
@@ -457,17 +478,16 @@ uint8_t mecaCom(uint8_t ordre)
   return result;
 }
 
-
 void test_evitement(void)
 {
-    trajectory_goto_d(&traj, END,100);
+  trajectory_goto_d(&traj, END,-100);
   while(!trajectory_is_ended(&traj));
 
-  //      printf("astar test \n");	    
-  //    set_startCoor(G_LENGTH * 1 + 1);
-  //    set_goalCoor(G_LENGTH * 8 + 13);
+  //printf("astar test \n");	    
+  //set_startCoor(G_LENGTH * 2 + 2);
+  //set_goalCoor(G_LENGTH * 8 + 13);
 
-  //   while(!astarMv());
+  //while(!astarMv());
   
   
    
@@ -480,12 +500,3 @@ void test_evitement(void)
 
   while(1);
 }
-
-
-/*
-TODO 
-Vider la pile d'instructions
-sortir de l'astar 
-rajouter l'obstacle dans le graphe
-relancer astar avec le nouveau point de depart
-*/

@@ -16,6 +16,7 @@
 #include <scheduler.h>
 #include "asserv_manager.h"
 
+
 void asserv_update_low_level(void * p);
 
 void asserv_init_gain(asserv_manager_t * t)

@@ -17,6 +17,7 @@
 #define RAPPORT_STATIC_DERAPAGE 2.1504
 
 
+
 typedef struct 
 {
   struct cs csm_distance1;

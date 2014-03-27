@@ -83,4 +83,8 @@ int32_t position_cm2imp(position_manager_t *,fxx cm);
 int32_t position_deg2imp(position_manager_t *,fxx deg);
 int32_t position_rad2imp(position_manager_t *,fxx deg);
 
+void position_set_x_cm(position_manager_t *,fxx x_cm);
+void position_set_y_cm(position_manager_t *,fxx y_cm);
+void position_set_angle_deg(position_manager_t *pm,fxx deg);
+
 #endif //POSITION_MANAGER_H
