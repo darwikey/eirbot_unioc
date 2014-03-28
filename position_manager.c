@@ -6,6 +6,11 @@
 #include "astar.h"
 
 
+int32_t offset_x = 0;
+int32_t offset_y = 0;
+int32_t offset_a = 0;
+
+
 // EIRBUG
 void position_abs(position_manager_t* pm, int16_t* x, int16_t* y, int16_t* a) {
 	*x = pm->acs_x_begin + fxx_to_double(position_get_x_cm(pm));
@@ -81,11 +86,19 @@ void position_update_low_level(void * arg)
 
 //  U_PM_FLAGS = U_PM_FLAGS_SET_REGISTERS;
   nop();
+  
 
-  pm->angle = U_PM_ANGLE;
+
+  //printf("dist %lf",position_get_distance(pm));
+  //printf("distU %d",U_PM_DISTANCE);
+
+
+
+
+  pm->angle = U_PM_ANGLE;// - offset_a;
   pm->distance = U_PM_DISTANCE;
-  pm->x = U_PM_X;
-  pm->y = U_PM_Y;
+  pm->x = U_PM_X;// - offset_x;
+  pm->y = U_PM_Y;// - offset_y;
   
   U_PM_FLAGS = 0;
 
@@ -256,18 +269,18 @@ int32_t position_rad2imp(position_manager_t *pm,fxx rad)
 void position_set_x_cm(position_manager_t *pm,double x_cm)
 {
   fxx x = fxx_from_double(x_cm); 
-  pm->x = fxx_div(x,pm->c_imp2cm);
+  offset_x = U_PM_X - fxx_div(x,pm->c_imp2cm) ;
 }
 
 void position_set_y_cm(position_manager_t *pm,double y_cm)
 {
   fxx y = fxx_from_double(y_cm);
-  pm->y = fxx_div(y,pm->c_imp2cm);
+  offset_y =  U_PM_Y - fxx_div(y,pm->c_imp2cm);
 }
 
 
 void position_set_angle_deg(position_manager_t *pm,double deg)
 {
  fxx a = fxx_from_double(deg);
-  pm->angle = a;
+  offset_a =  U_PM_ANGLE - a;
 }

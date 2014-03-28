@@ -3,7 +3,7 @@
 
 #define ROBOT_PM_UPDATE_TIME 15000
 
-#define ROBOT_IMP_PI  (49270.0/5.235) //(49270.0/5.870) // (49270.0/5.824) 
+#define ROBOT_IMP_PI  (49270.0/5.2005) //(49270.0/5.870) // (49270.0/5.824) 
 #define ROBOT_IMP_CM 111
 
 #include <aversive.h>

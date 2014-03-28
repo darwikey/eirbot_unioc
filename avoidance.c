@@ -23,7 +23,7 @@ enum detection_behaviour_t detection_behaviour;
 void avoidance_init(void)
 {
 
-  id_scheduler = scheduler_add_periodical_event(adversary_detection_traj,NULL, 500000/SCHEDULER_UNIT);
+ // id_scheduler = scheduler_add_periodical_event(adversary_detection_traj,NULL, 500000/SCHEDULER_UNIT);
 
   detection_behaviour = BEHAVIOUR_ASTAR;
 }
@@ -78,7 +78,7 @@ void adversary_detection_traj(void*p)
        {
 		  if(obstacleInTrajectory(get_startCoor(),get_goalCoor()))//need goalcoor
       {
-        
+
         trajectory_reinit(&traj);
         asserv_stop(&asserv);
         
@@ -129,54 +129,60 @@ void adversary_detection_traj(void*p)
   {
     uint16_t dist = ((goalCoor%G_LENGTH) - x/UNIT)*((goalCoor%G_LENGTH) - x/UNIT) 
     + (goalCoor/G_LENGTH - y/UNIT)*(goalCoor/G_LENGTH - y/UNIT);
+
+    printf("distgoal: %d",dist);
     if(dist < bestDist)
     {
      bestDist = dist;
      bestCoor = x/UNIT + G_LENGTH*(y/UNIT);
    }
  }
- else if(!isOutOfGraphe(x+1, y) && !isObstacle(x+1, y))
+ if(!isOutOfGraphe(x+UNIT, y) && !isObstacle(x+UNIT, y))
  {
-   
-  uint16_t dist = ((goalCoor%G_LENGTH) - 1 + x/UNIT)*((goalCoor%G_LENGTH) - 1 + x/UNIT) 
+
+  uint16_t dist = ((goalCoor%G_LENGTH) - (1 + x/UNIT))*((goalCoor%G_LENGTH) - (1 + x/UNIT)) 
   + (goalCoor/G_LENGTH - y/UNIT)*(goalCoor/G_LENGTH - y/UNIT);
+  printf("distgoal: %d",dist);
   if(dist < bestDist)
   {
    bestDist = dist;
    bestCoor = (1+x)/UNIT + G_LENGTH*(y/UNIT);
  } 
 }
-else if(!isOutOfGraphe(x, y+1) && !isObstacle(x, y+1))
+if(!isOutOfGraphe(x, y+UNIT) && !isObstacle(x, y+UNIT))
 {
 
   uint16_t dist = ((goalCoor%G_LENGTH) - x/UNIT)*((goalCoor%G_LENGTH) - x/UNIT) 
-  + (goalCoor/G_LENGTH - 1 + y/UNIT)*(goalCoor/G_LENGTH - 1+ y/UNIT);
+  + (goalCoor/G_LENGTH - (1 + y/UNIT))*(goalCoor/G_LENGTH - (1+ y/UNIT));
+  printf("distgoal: %d",dist);
   if(dist < bestDist)
   {
    bestDist = dist;
    bestCoor = x/UNIT + G_LENGTH*(1 + y/UNIT);
  }
 }
-else if(!isOutOfGraphe(x+1, y+1) && !isObstacle(x+1, y+1)) 
+
+if(!isOutOfGraphe(x+UNIT, y+UNIT) && !isObstacle(x+UNIT, y+UNIT)) 
 {
-  
-  uint16_t dist = ((goalCoor%G_LENGTH) - 1 + x/UNIT)*((goalCoor%G_LENGTH) - 1 + x/UNIT) 
-  + (goalCoor/G_LENGTH - 1 + y/UNIT)*(goalCoor/G_LENGTH - 1 + y/UNIT);
+
+  uint16_t dist = ((goalCoor%G_LENGTH) - (1 + x/UNIT))*((goalCoor%G_LENGTH) - (1 + x/UNIT)) 
+  + (goalCoor/G_LENGTH - (1 + y/UNIT))*(goalCoor/G_LENGTH - (1 + y/UNIT));
+  printf("distgoal: %d",dist);
   if(dist < bestDist)
   {
    bestDist = dist;
    bestCoor = x/UNIT + 1 + G_LENGTH*(1 + y/UNIT);
- }
+  }
 }
-else
+  if(bestDist == UINT16_MAX)
 {
   printf("echec go_to_node !!!\n");
 }
 
 if(bestCoor)
 {
-  
-  printf("bestCoor : %d \n",bestCoor);
+
+  printf("bestCoor : %d : x %d y:%d \n",bestCoor,bestCoor%G_LENGTH,bestCoor/G_LENGTH);
   double angle = atan2(UNIT * (bestCoor/G_LENGTH) - y,UNIT * (bestCoor%G_LENGTH) - x);
   uint16_t dist =  (UNIT * (bestCoor/G_LENGTH) - y)*(UNIT * (bestCoor/G_LENGTH) - y) + 
   (UNIT * (bestCoor%G_LENGTH) - x)*(UNIT * (bestCoor%G_LENGTH) - x);
