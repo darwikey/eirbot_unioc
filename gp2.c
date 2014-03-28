@@ -83,8 +83,8 @@ int gp2_get_coor_obstacle(enum gp2_type type, uint16_t distance_max)
       printf("value of angle %lf \n", angle);
       
       // prend en compte le decallage initiale
-      double posx = fxx_to_double(position_get_y_cm(&pos)) + 20.0;
-      double posy = fxx_to_double(position_get_x_cm(&pos)) + 20.0;
+      double posx = fxx_to_double(position_get_y_cm(&pos));
+      double posy = fxx_to_double(position_get_x_cm(&pos));
       
       int y = (int) (cos(angle * M_PI / 180.0) * (double)distance_gp2);  
       int x = (int) (sin(angle * M_PI / 180.0) * (double)distance_gp2);

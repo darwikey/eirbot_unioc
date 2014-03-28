@@ -61,28 +61,28 @@
 /* À vérifier */
 #define OSC_PERIOD_MS 1*SCHEDULER_10MS
 
-struct pid_error{
-	int16_t p;
-	int16_t i;
-	int16_t d;
+ struct pid_error{
+ 	int16_t p;
+ 	int16_t i;
+ 	int16_t d;
 
-	double e;
-};
+ 	double e;
+ };
 
 /**
  * 
  **/
-int8_t oscillations = 0;
+ int8_t oscillations = 0;
 
-struct pid_error tested_value; 
+ struct pid_error tested_value; 
 
-void pid_e_init(int16_t p, int16_t i, int16_t d, double e)
-{
-	tested_value.p = p;
-	tested_value.i = i;
-	tested_value.d = d;
-	tested_value.e = e;
-}
+ void pid_e_init(int16_t p, int16_t i, int16_t d, double e)
+ {
+ 	tested_value.p = p;
+ 	tested_value.i = i;
+ 	tested_value.d = d;
+ 	tested_value.e = e;
+ }
 
 /**
  * Renvoie 1 si le robot est bloqué (patine)
@@ -96,7 +96,7 @@ int8_t is_skating(void)
 	static int32_t uenc1old = 0, uenc3old = 0;
 
 	if ((R_ENC * (double)(ABS(U_ENC0-uenc0old)) < (double)(ABS(U_ENC1-uenc1old))) ||
-			(R_ENC * (double)(ABS(U_ENC2-uenc2old)) < (double)(ABS(U_ENC3-uenc3old))))
+		(R_ENC * (double)(ABS(U_ENC2-uenc2old)) < (double)(ABS(U_ENC3-uenc3old))))
 		flag = 1;
 
 	uenc0old = U_ENC0;
@@ -116,50 +116,50 @@ int8_t is_skating(void)
  * et son accélération nulle, pendant le mouvement.
  * Si ça vitesse varie trop, c'est qu'on a une valeur trop grande de P
  **/
-int8_t is_oscillating(void * vtraj)
-{
-	static int8_t appelcounter = 0;
-	static double xvalues[3] = {-1.0,-1.0,-1.0};
-	static double yvalues[3] = {-1.0,-1.0,-1.0};
-	trajectory_manager_t * traj = vtraj;
+ int8_t is_oscillating(void * vtraj)
+ {
+ 	static int8_t appelcounter = 0;
+ 	static double xvalues[3] = {-1.0,-1.0,-1.0};
+ 	static double yvalues[3] = {-1.0,-1.0,-1.0};
+ 	trajectory_manager_t * traj = vtraj;
 
-	appelcounter++;
+ 	appelcounter++;
 
-	xvalues[0] = xvalues[1];  
-	xvalues[1] = xvalues[2];  
-	xvalues[2] = ABS(position_get_x_cm(traj->pm));
-	yvalues[0] = yvalues[1];  
-	yvalues[1] = yvalues[2];
-	yvalues[2] = ABS(position_get_y_cm(traj->pm));
+ 	xvalues[0] = xvalues[1];  
+ 	xvalues[1] = xvalues[2];  
+ 	xvalues[2] = ABS(position_get_x_cm(traj->pm));
+ 	yvalues[0] = yvalues[1];  
+ 	yvalues[1] = yvalues[2];
+ 	yvalues[2] = ABS(position_get_y_cm(traj->pm));
 
 	//printf("x : %lf\n", xvalues[2]);
 	//printf("y : %lf\n", yvalues[2]);
 
-	if (appelcounter <= 3)
-		return 0;
+ 	if (appelcounter <= 3)
+ 		return 0;
 
 	//printf("%lf\n",xvalues[1]-xvalues[0]);
 	//printf("%lf\n",xvalues[2]-xvalues[1]);
-	double vold= ABS(xvalues[1] - xvalues[0]) / (OSC_PERIOD_MS / 1000.0);
-	double vnew= ABS(xvalues[2] - xvalues[1]) / (OSC_PERIOD_MS / 1000.0);
+ 	double vold= ABS(xvalues[1] - xvalues[0]) / (OSC_PERIOD_MS / 1000.0);
+ 	double vnew= ABS(xvalues[2] - xvalues[1]) / (OSC_PERIOD_MS / 1000.0);
 
 
 	//printf("vnew : %lf\n", vnew);  
 	//printf("vold : %lf\n\n", vold);
 
 
-	double acc = (vnew - vold) / (OSC_PERIOD_MS / 1000.0);
+ 	double acc = (vnew - vold) / (OSC_PERIOD_MS / 1000.0);
 	//printf("acc %lf\n", acc);
 
-	if (acc > ACC_MAX)
-	{
-	  oscillations = 1;
+ 	if (acc > ACC_MAX)
+ 	{
+ 		oscillations = 1;
 	  //printf("acc %lf\n", acc);
-		return 1;
-	}
+ 		return 1;
+ 	}
 
-	return 0;
-}
+ 	return 0;
+ }
 
 /** 
  * Calcul de l'erreur associée à l'action Proportionnelle :
@@ -167,72 +167,72 @@ int8_t is_oscillating(void * vtraj)
  * en fonction du temps qu'il a mis pour arriver à l'endroit prévu
  * on cherche à minimiser le temps de trajet, sans patinage
  **/
-int8_t error_test_p(trajectory_manager_t * traj)
-{
-	int8_t i = 0;
-	int8_t dist = 100;
+ int8_t error_test_p(trajectory_manager_t * traj)
+ {
+ 	int8_t i = 0;
+ 	int8_t dist = 100;
 
-	printf("Test : 10 trajets normalement\n");
+ 	printf("Test : 10 trajets normalement\n");
 
-	for (i = 0 ; i < 6 ; i++)
-	{
-		printf("tests numero:%d\n",i);
-		trajectory_goto_d(traj, END, dist);
-		wait_ms(1000);
+ 	for (i = 0 ; i < 6 ; i++)
+ 	{
+ 		printf("tests numero:%d\n",i);
+ 		trajectory_goto_d(traj, END, dist);
+ 		wait_ms(1000);
 
-		while(!trajectory_is_ended(traj))
-		{
-			wait_ms(100);
+ 		while(!trajectory_is_ended(traj))
+ 		{
+ 			wait_ms(100);
 
-			
-			if(is_skating()) 
-			{
-				printf("S\n");
-				printf("%lf %lf\n", (double)U_ENC1 / (double)U_ENC0, (double)U_ENC3 / (double)U_ENC2);
-				trajectory_pause(traj);
+ 			
+ 			if(is_skating()) 
+ 			{
+ 				printf("S\n");
+ 				printf("%lf %lf\n", (double)U_ENC1 / (double)U_ENC0, (double)U_ENC3 / (double)U_ENC2);
+ 				trajectory_pause(traj);
 
-				trajectory_removeStep(traj);
-				wait_ms(1000);
-				return 1;
-			}
-		}
+ 				trajectory_removeStep(traj);
+ 				wait_ms(1000);
+ 				return 1;
+ 			}
+ 		}
 
-		wait_ms(PAUSE);
-		dist *= -1;
-	}
+ 		wait_ms(PAUSE);
+ 		dist *= -1;
+ 	}
 
-	return 0; 
-}
+ 	return 0; 
+ }
 
 
-int16_t pid_p_tester(asserv_manager_t * asserv, trajectory_manager_t * traj, position_manager_t * pos)
-{
+ int16_t pid_p_tester(asserv_manager_t * asserv, trajectory_manager_t * traj, position_manager_t * pos)
+ {
 
-	int8_t skate = 0;
-	int16_t min = ABSOLUTE_MIN_P, max = ABSOLUTE_MAX_P;
-	int16_t p = (max-min)/2;  
-	int16_t pold = p;
+ 	int8_t skate = 0;
+ 	int16_t min = ABSOLUTE_MIN_P, max = ABSOLUTE_MAX_P;
+ 	int16_t p = (max-min)/2;  
+ 	int16_t pold = p;
 
-	do{
-		pold = p;
+ 	do{
+ 		pold = p;
 		pid_set_gains(&asserv->pid_distance, p, 10/*(ABSOLUTE_MAX_I-ABSOLUTE_MIN_I)/2*/, 100/*(MAX_D-MIN_D)/2*/);
-		skate = error_test_p(traj);
+ 		skate = error_test_p(traj);
 
-		if (skate || oscillations)
-			max = p;
-		else 
-			min = p;
+ 		if (skate || oscillations)
+ 			max = p;
+ 		else 
+ 			min = p;
 
-		p = (max + min)/2;
-		wait_ms(PAUSE);
+ 		p = (max + min)/2;
+ 		wait_ms(PAUSE);
 
-		printf("p trouve: %d\n", p);
-	}while(ABS(pold - p) >= 10);
+ 		printf("p trouve: %d\n", p);
+ 	}while(ABS(pold - p) >= 10);
 
-	tested_value.p = p;
+ 	tested_value.p = p;
 
-	return p;                         
-}
+ 	return p;                         
+ }
 
 /** 
  * Calcul de l'erreur associée à l'action Intégrale :
@@ -252,20 +252,20 @@ double eval_position_error(double x_ordered, double y_ordered, double x_real, do
  * Cette fonction fait effectuer au robot un trajet prédéterminé
  * et retourne l'erreur associée à ce trajet
  **/
-double error_test_i(trajectory_manager_t * traj)
-{
-	static int8_t a = 1;
-	static int8_t b = 0;
+ double error_test_i(trajectory_manager_t * traj)
+ {
+ 	static int8_t a = 1;
+ 	static int8_t b = 0;
 
-	trajectory_goto_d(traj, END, a*100);
+ 	trajectory_goto_d(traj, END, a*100);
 
-	while(!trajectory_is_ended(traj));
-	a *=-1;
-	b = ((b == 0) ? 1 : 0);
+ 	while(!trajectory_is_ended(traj));
+ 	a *=-1;
+ 	b = ((b == 0) ? 1 : 0);
 
-	return eval_position_error(b*100, 0, position_get_x_cm(traj->pm), position_get_y_cm(traj->pm));
+ 	return eval_position_error(b*100, 0, position_get_x_cm(traj->pm), position_get_y_cm(traj->pm));
 
-}
+ }
 
 /**
  * On effectue NB_TEST tests pour avoir une valeur d'erreur moyenne (plus significatif)
@@ -278,24 +278,24 @@ double error_test_i(trajectory_manager_t * traj)
  * On se laisse le temps de prendre le robot et de le remettre en position initiale à la main
  * Si on ne fait pas ça, il va rentrer dans le mur
  **/
-double mean_error_tests_i(trajectory_manager_t * traj)
-{
-	double mean_e = 0;
-	double e;
-	int16_t k;
+ double mean_error_tests_i(trajectory_manager_t * traj)
+ {
+ 	double mean_e = 0;
+ 	double e;
+ 	int16_t k;
 
-	for(k = 0; k < NB_TEST; k++)
-	{
-		
-		e = error_test_i(traj);
-		printf("erreur %lf\n",e);
-		mean_e = (k * mean_e + e) / (k + 1);  
+ 	for(k = 0; k < NB_TEST; k++)
+ 	{
+ 		
+ 		e = error_test_i(traj);
+ 		printf("erreur %lf\n",e);
+ 		mean_e = (k * mean_e + e) / (k + 1);  
 
-		wait_ms(PAUSE);
-	}
-	printf("Moyenne de l'erreur: %lf\n",mean_e);
-	return mean_e;
-}
+ 		wait_ms(PAUSE);
+ 	}
+ 	printf("Moyenne de l'erreur: %lf\n",mean_e);
+ 	return mean_e;
+ }
 
 /**
  * Avant d'exécuter cette fonction, il faut faire un pid_e_init
@@ -304,35 +304,35 @@ double mean_error_tests_i(trajectory_manager_t * traj)
  * 
  * On cherche le plus petit i tq la precision soit bonne.
  **/
-int8_t work_out_i_best_value(asserv_manager_t* asserv, trajectory_manager_t* traj)
-{
-	double e ;
-	int8_t i = (ABSOLUTE_MAX_I - ABSOLUTE_MIN_I)/2;
-	int8_t iold = i;
-	int8_t min = ABSOLUTE_MIN_I;
-	int8_t max = ABSOLUTE_MAX_I;
+ int8_t work_out_i_best_value(asserv_manager_t* asserv, trajectory_manager_t* traj)
+ {
+ 	double e ;
+ 	int8_t i = (ABSOLUTE_MAX_I - ABSOLUTE_MIN_I)/2;
+ 	int8_t iold = i;
+ 	int8_t min = ABSOLUTE_MIN_I;
+ 	int8_t max = ABSOLUTE_MAX_I;
 	//pid_e_init(tested_value.p,i, 0, MIN_D);
 
-	do{
-		iold = i;
+ 	do{
+ 		iold = i;
 
-		pid_set_gains(&asserv->pid_distance, 900, i, 100);
+ 		pid_set_gains(&asserv->pid_distance, 900, i, 100);
 
 		//printf("10 tests avec i %d\n",i);
-		e = mean_error_tests_i(traj);
+ 		e = mean_error_tests_i(traj);
 
 		if (e >= MAX_I_ERROR) /*erreur grande*/
-			min = i;
-		else if (e <= MAX_I_ERROR)
-			max = i;
+ 		min = i;
+ 		else if (e <= MAX_I_ERROR)
+ 			max = i;
 
-		i = (max + min)/2;
+ 		i = (max + min)/2;
 
-		printf("i trouve: %d\n",i);
-	}while(ABS(iold - i ) >= 5);
+ 		printf("i trouve: %d\n",i);
+ 	}while(ABS(iold - i ) >= 5);
 
-	return i;
-}
+ 	return i;
+ }
 
 /*
 	 void useless_test(asserv_manager_t * asserv,
@@ -358,24 +358,24 @@ int8_t work_out_i_best_value(asserv_manager_t* asserv, trajectory_manager_t* tra
 	 }
 	 */
 
-void useless_test(asserv_manager_t *	asserv, 
-		trajectory_manager_t *	traj, 
-		position_manager_t *	pos)
-{
-	pid_set_gains(&asserv->pid_distance, 1000, 10, 100);
+	 void useless_test(asserv_manager_t *	asserv, 
+	 	trajectory_manager_t *	traj, 
+	 	position_manager_t *	pos)
+	 {
+	 	pid_set_gains(&asserv->pid_distance, 1000, 10, 100);
 
-	scheduler_add_periodical_event(&is_oscillating,(void *)traj, OSC_PERIOD_MS);
+	 	scheduler_add_periodical_event(&is_oscillating,(void *)traj, OSC_PERIOD_MS);
 
-	trajectory_goto_d(traj,END,100);
+	 	trajectory_goto_d(traj,END,100);
 
-	while(1);
+	 	while(1);
 
-	while(!trajectory_is_ended(traj))
-	{
-		if (oscillations)
-		{
-			printf("osc\n");
-		}
-	}
+	 	while(!trajectory_is_ended(traj))
+	 	{
+	 		if (oscillations)
+	 		{
+	 			printf("osc\n");
+	 		}
+	 	}
 	//int16_t p = pid_p_tester(asserv,traj, pos);
-}
+	 }

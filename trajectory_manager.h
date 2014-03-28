@@ -123,6 +123,8 @@ void trajectory_goto_xy_pion(trajectory_manager_t *, trajectory_order_when_t whe
 void trajectory_goto_xy_backward(trajectory_manager_t *t,trajectory_order_when_t when, double x, double y);
 void trajectory_goto_xy_pion_backward(trajectory_manager_t *t,trajectory_order_when_t when, double x, double y);
 //corrige l'erreur des coordonnées pour ammener le pion au centre de la case
+void disableSpinning();
+void enableSpinning();
 
 void trajectory_end(trajectory_manager_t* t);
 

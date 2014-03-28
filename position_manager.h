@@ -77,6 +77,7 @@ int32_t position_get_y(position_manager_t *);
 fxx position_get_x_cm(position_manager_t *);
 fxx position_get_y_cm(position_manager_t *);
 uint8_t position_get_coor(position_manager_t *);
+uint8_t position_get_coor_eps(position_manager_t *pm, double *eps);
 void position_set_xya_cm_deg(position_manager_t *,fxx x,fxx y, fxx a);
 
 int32_t position_cm2imp(position_manager_t *,fxx cm);

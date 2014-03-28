@@ -23,6 +23,8 @@
 
 static int8_t couleur_depart = 0;//devra valoir 1 ou -1 selon si on démarre en rouge ou en bleu, pour le mutick,(void*)t,ROBOT_PM_UPDATE_TIME/SCHEDULER_UNIT);
 
+int8_t spinning = 0;
+
 
 void trajectory_init(trajectory_manager_t *t,position_manager_t *pm,asserv_manager_t * ass)//,notification_manager_t *not)
 {
@@ -177,7 +179,11 @@ uint8_t trajectory_is_paused(trajectory_manager_t *t)
 //Checker si un mouvement est fini
 uint8_t trajectory_is_ended(trajectory_manager_t *t)
 {
-  antipatinage_scheduler();
+
+  if(spinning)
+    {
+      antipatinage_scheduler();
+    }
 	if(t->current == t->last) {
 		return 1;
 	} else {
@@ -599,4 +605,14 @@ int8_t trajectory_goto_pos(trajectory_manager_t* t, trajectory_order_when_t when
   trajectory_goto_arel(t, when, ia);
   trajectory_goto_d(t, when, d);
   trajectory_goto_a(t, when, fa);
+}
+
+void enableSpinning()
+{
+  spinning = 1;
+}
+
+void disableSpinning()
+{
+  spinning = 0;
 }

@@ -19,5 +19,4 @@ fxx fxx_div(fxx a,fxx b);
 fxx fxx_inv(fxx a);
 fxx fxx_from_double(double a);
 double fxx_to_double(fxx a);
-
 #endif //FXX_H

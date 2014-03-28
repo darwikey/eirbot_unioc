@@ -218,6 +218,26 @@ uint8_t position_get_coor(position_manager_t *pm)
       return x + G_LENGTH * y;
 }
 
+// renvoie la position courante dans le graphe
+uint8_t position_get_coor_eps(position_manager_t *pm, double *eps)
+{
+      double posx = pm->y * pm->c_imp2cm ;
+      double posy = pm->x * pm->c_imp2cm ;
+            
+      // Calcule la coordonné la plus proche d'un noeud
+      uint8_t shift_x = ((int)posx) % UNIT >= UNIT/2;
+      uint8_t shift_y = ((int)posy) % UNIT >= UNIT/2;
+      
+      //Now the value of x and y is in UNIT
+      uint8_t x = posx / UNIT + shift_x;
+      uint8_t y = posy / UNIT + shift_y;
+      
+      *eps = fabs(posx - (double)x*UNIT) + fabs(posx - (double)x*UNIT);
+
+      return x + G_LENGTH * y;
+}
+
+
 int32_t position_cm2imp(position_manager_t *pm,fxx cm)
 {
   return fxx_to_double(fxx_div(cm,pm->c_imp2cm));
@@ -233,18 +253,21 @@ int32_t position_rad2imp(position_manager_t *pm,fxx rad)
 }
 
 
-void position_set_x_cm(position_manager_t *pm,fxx x_cm)
+void position_set_x_cm(position_manager_t *pm,double x_cm)
 {
-  pm->x = fxx_div(x_cm,pm->c_imp2cm);
+  fxx x = fxx_from_double(x_cm); 
+  pm->x = fxx_div(x,pm->c_imp2cm);
 }
 
-void position_set_y_cm(position_manager_t *pm,fxx y_cm)
+void position_set_y_cm(position_manager_t *pm,double y_cm)
 {
-  pm->y = fxx_div(y_cm,pm->c_imp2cm);
+  fxx y = fxx_from_double(y_cm);
+  pm->y = fxx_div(y,pm->c_imp2cm);
 }
 
 
-void position_set_angle_deg(position_manager_t *pm,fxx deg)
+void position_set_angle_deg(position_manager_t *pm,double deg)
 {
-  pm->angle = deg;
+ fxx a = fxx_from_double(deg);
+  pm->angle = a;
 }
