@@ -23,7 +23,7 @@ void antipatinage_scheduler()
 {
   //scheduler_del_event(id);
   //printf("...antipatinage...\n");
-  
+
   const int32_t epsEnc = 200;
   const int32_t epsMoteur = 400;
   
@@ -37,9 +37,10 @@ void antipatinage_scheduler()
   int32_t moteur_gauche = U_ENC1;
   int32_t moteur_droit = U_ENC3;
 
-  int32_t ratio_droit = (moteur_droit - old_moteur_droit)/(encodeur_droit - old_encodeur_droit);
-  int32_t ratio_gauche = (moteur_gauche - old_moteur_gauche)/(encodeur_gauche - old_encodeur_gauche);
+  int32_t ratio_droit = abs((moteur_droit - old_moteur_droit)/(encodeur_droit - old_encodeur_droit));
+  int32_t ratio_gauche = abs((moteur_gauche - old_moteur_gauche)/(encodeur_gauche - old_encodeur_gauche));
 
+  int8_t avance = 0;
   //printf("diffencD %ld    diffmotD %ld    diffencG %ld    diffmotG %ld\n", encodeur_droit - old_encodeur_droit, moteur_droit - old_moteur_droit, encodeur_gauche - old_encodeur_gauche, moteur_gauche - old_moteur_gauche);   
 
 
@@ -48,22 +49,41 @@ void antipatinage_scheduler()
   //printf("ratio Droit %ld ratio Gauche %ld \n",ratio_droit,ratio_gauche);
 
 //  if(abs(encodeur_gauche - old_encodeur_gauche) < epsEnc && abs(moteur_gauche -old_moteur_gauche) > epsMoteur)
-   if(ratio_gauche > 100)
+  if(ratio_gauche > 60.0)
+  {
+    printf("PATINAGE!!!!\n");
+    printf("ratio Droit %ld ratio Gauche %ld \n",ratio_droit,ratio_gauche);
+    patinage = 1;
+    if(moteur_gauche - old_moteur_gauche > 0)
     {
-      printf("PATINAGE!!!!\n");
-      patinage = 1;
+      avance = 1;
     }
-  if(abs(encodeur_droit - old_encodeur_droit) <  epsEnc && abs(moteur_droit -old_moteur_droit) > epsMoteur)
-    if(ratio_droit > 100)
+  }
+  // if(abs(encodeur_droit - old_encodeur_droit) <  epsEnc && abs(moteur_droit -old_moteur_droit) > epsMoteur)
+  if(ratio_droit > 60.0)
+  {
+    printf("PATINAGE!!!!\n");
+    printf("ratio Droit %ld ratio Gauche %ld \n",ratio_droit,ratio_gauche);
+    patinage = 1;
+    if(moteur_droit - old_moteur_droit > 0)
     {
-      printf("PATINAGE!!!!\n");
-      patinage = 1;
+      avance = 1;
     }
+  }
 
   if(patinage)
   {
-    trajectory_pause(&traj);
-  //  asserv_stop(&asserv);
+    trajectory_reinit(&traj);
+    asserv_stop(&asserv);
+    if(avance)
+    {
+      trajectory_goto_d(&traj, END, -10);
+    }
+    else
+    {
+      trajectory_goto_d(&traj, END, 10); 
+    }
+    while(traj.last != traj.current);
   }
 
   old_encodeur_gauche = encodeur_gauche;

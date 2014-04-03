@@ -117,19 +117,19 @@ int main(void)
 
 	//init communication
 	printf("init com \n");
-	initCom();
+	// initCom();
 	printf("end init com \n");
 
 	//init A*
 	initObstacle();
+	 // mecaCom(TIROIR_OUVERT);
+	 // mecaCom(PEIGNE_OUVERT);
+	 // wait_ms(2000);
 
 	//init méca
-	mecaCom(TIROIR_FERMER);
-	mecaCom(PEIGNE_FERMER);
-	wait_ms(2000);
-	mecaCom(TIROIR_OUVERT);
-	mecaCom(PEIGNE_OUVERT);
-	while(1);
+	 // mecaCom(TIROIR_FERMER);
+	 // mecaCom(PEIGNE_FERMER);
+	// while(1);
 	if(SWITCH_TEAM)//cable noir
 	{
 		team = RED;
@@ -156,19 +156,22 @@ int main(void)
 	// 	go_to_node(position_get_y_cm(&pos),position_get_x_cm(&pos));
 	// 	while(trajectory_is_ended(&traj));
 	// 	while(1);
-	// }	
-	//test_evitement();
+	// }
+	enableSpinning();	
+	test_evitement();
+while(1);
+
 
 	if(team == RED)
 	{
 
 		findPosition(team);
 			// attend que la tirette soit retirée
-		//while (!TIRETTE);
+		while (!TIRETTE);
 		
 		//position_set_x_cm(&pos,20.0);
 		//position_set_y_cm(&pos,20.0);
-		//enableSpinning();
+		enableSpinning();
 		//position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(20.0), fxx_from_double(0.0));
 
 		printf("begin match \n");	    
@@ -185,11 +188,11 @@ int main(void)
 	else // Team jaune
 	{
 		findPosition(team);
-		while(1);
-			// attend que la tirette soit retirée
-		//while (!TIRETTE);
+
+		// attend que la tirette soit retirée
+		while (!TIRETTE);
 		//position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(280.0), fxx_from_double(0.0));
-		//enableSpinning();
+		enableSpinning();
 		printf("begin match \n");
 		printf("start pos: x %lf pos y %lf \n",position_get_x_cm(&pos),position_get_y_cm(&pos));
 
@@ -252,22 +255,25 @@ int main(void)
 		}
 
 		I2C_DISPO = 1;
-		return result;
+		return -result;
 	}
 
 	void test_evitement(void)
 	{
-		
-		for(int i = 1;i<16;i++)
-		{
-			trajectory_goto_arel(&traj, END, 180 * i);
+			trajectory_goto_d(&traj, END, 100);
 			while(!trajectory_is_ended(&traj));
-		}	
+		while(1);
+			// trajectory_goto_arel(&traj, END, 180);
+			// while(!trajectory_is_ended(&traj));
+			// trajectory_goto_d(&traj, END, 100);
+			// while(!trajectory_is_ended(&traj));
+			
 	//printf("astar test \n");	    
 	//set_startCoor(G_LENGTH * 2 + 2);
-	//set_goalCoor(G_LENGTH * 8 + 13);
+	//set_goa0Coor(G_LENGTH * 8 + 13);
 
-	//while(!astarMv());
+	//
+			while(astarMv());
 
 
 
@@ -278,7 +284,6 @@ int main(void)
 		printf("isOut  %d    obs %d\n", isOutOfGraphe(x, y), isObstacle(x, y));
 		//go_to_node(x, y,graphe);
 
-		while(1);
 	}
 
 	void findPosition(uint8_t type)
@@ -393,8 +398,8 @@ int main(void)
 		trajectory_goto_d(&traj, END,13);
 		while(!trajectory_is_ended(&traj));
 		
-		//mecaCom(TIROIR_OUVERT);
-		//mecaCom(PEIGNE_OUVERT);
+		// mecaCom(TIROIR_OUVERT);
+		// mecaCom(PEIGNE_OUVERT);
 		
 		trajectory_goto_a(&traj, END, 0);
 		while(!trajectory_is_ended(&traj));
@@ -412,7 +417,7 @@ int main(void)
 		trajectory_goto_a(&traj, END, 0);
 		while(!trajectory_is_ended(&traj));
 
-		trajectory_goto_d(&traj, END,5);
+		trajectory_goto_d(&traj, END,10);
 		while(!trajectory_is_ended(&traj));
 		
 
@@ -426,7 +431,7 @@ int main(void)
 		trajectory_goto_a(&traj, END, 180);
 		while(!trajectory_is_ended(&traj));
 
-		trajectory_goto_d(&traj, END,5);
+		trajectory_goto_d(&traj, END,10);
 		while(!trajectory_is_ended(&traj));
 	}
 
@@ -436,7 +441,7 @@ int main(void)
 		double eps = 0;
 		set_startCoor(position_get_coor_eps(&pos,&eps));
 		printf("start pos: %d eps %lf \n",position_get_coor_eps(&pos, &eps),eps);
-		set_goalCoor(G_LENGTH * 8 + 10);
+		set_goalCoor(G_LENGTH * 8 + 9);
 		
 		if (eps > EPSILON)
 		{
@@ -450,48 +455,48 @@ int main(void)
 		
 		printf("take the fruit");
 		
-		//mecaCom(PEIGNE_OUVERT);
-		//mecaCom(TIROIR_OUVERT);
+		 // mecaCom(PEIGNE_OUVERT);
+		 // mecaCom(TIROIR_OUVERT);
 		
 		trajectory_goto_a(&traj, END, 0);
 		while(!trajectory_is_ended(&traj));
 
-		trajectory_goto_d(&traj, END, 12);
+		trajectory_goto_d(&traj, END, 8);
 		while(!trajectory_is_ended(&traj));
 
 		trajectory_goto_a(&traj, END, 90);
 		while(!trajectory_is_ended(&traj));
 
-		trajectory_goto_d(&traj, END, 60);
+		trajectory_goto_d(&traj, END, 80);
 		while(!trajectory_is_ended(&traj));      
 
 
+		trajectory_goto_a(&traj, END, 135);
+		while(!trajectory_is_ended(&traj));
+
+		trajectory_goto_d(&traj, END, 8*1.414);
+		while(!trajectory_is_ended(&traj));
+		
+		// trajectory_goto_a(&traj, END, 90);
+		// while(!trajectory_is_ended(&traj));
+
+		// trajectory_goto_d(&traj, END, 12);
+		// while(!trajectory_is_ended(&traj));
+		
+
 		trajectory_goto_a(&traj, END, 180);
 		while(!trajectory_is_ended(&traj));
 
-		trajectory_goto_d(&traj, END, 12);
-		while(!trajectory_is_ended(&traj));
-		
-		trajectory_goto_a(&traj, END, 90);
-		while(!trajectory_is_ended(&traj));
-
-		trajectory_goto_d(&traj, END, 12);
-		while(!trajectory_is_ended(&traj));
-		
-
-		trajectory_goto_a(&traj, END, 180);
-		while(!trajectory_is_ended(&traj));
-
-		trajectory_goto_d(&traj, END, 60);
+		trajectory_goto_d(&traj, END, 40);
 		while(!trajectory_is_ended(&traj));
 		
 		trajectory_goto_a(&traj, END, -90);
 		while(!trajectory_is_ended(&traj));
 
-		trajectory_goto_d(&traj, END, 12);
+		trajectory_goto_d(&traj, END, 8);
 		while(!trajectory_is_ended(&traj));
 		
-		//mecaCom(PEIGNE_FERMER);
+		// mecaCom(PEIGNE_FERMER);
 	}
 
 	void putFruit(int8_t team)
@@ -517,11 +522,11 @@ int main(void)
 			trajectory_goto_d(&traj, END, -60);
 			while(!trajectory_is_ended(&traj));
 
-			//mecaCom(TIROIR_DEVERSER);
-			wait_ms(2000);
+			 // mecaCom(TIROIR_DEVERSER);
+			 // wait_ms(2000);
 
-			//mecaCom(TIROIR_FERMER);
-			trajectory_goto_d(&traj, END, 60);
+			 // mecaCom(TIROIR_FERMER);
+			 trajectory_goto_d(&traj, END, 60);
 			trajectory_goto_a(&traj, END, 0);
 			trajectory_goto_d(&traj, END, 7);
 			while(!trajectory_is_ended(&traj));
@@ -549,10 +554,10 @@ int main(void)
 			trajectory_goto_d(&traj, END, 60);
 			while(!trajectory_is_ended(&traj));
 			
-			//mecaCom(TIROIR_DEVERSER);
-			wait_ms(4000);
+			 // mecaCom(TIROIR_DEVERSER);
+			 // wait_ms(2000);
 
-			//mecaCom(TIROIR_FERMER);
+			 // mecaCom(TIROIR_FERMER);
 			
 			trajectory_goto_d(&traj, END, 60);
 			while(!trajectory_is_ended(&traj));
