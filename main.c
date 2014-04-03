@@ -19,7 +19,7 @@
 
 #define LARGEUR_ROBOT 30.0
 #define get_fdc 0x16
-#define DIST_CENTRE 12.2
+#define DIST_CENTRE 12.25
 
 // Interrupteur
 #define REPOSITIONING (PINE & 0x10)
@@ -61,7 +61,7 @@ extern int8_t patinage;
 
 int8_t I2C_DISPO = 1;
 
-
+uint8_t team;
 
 //////////////////////////////////////
 // Main
@@ -117,17 +117,19 @@ int main(void)
 
 	//init communication
 	printf("init com \n");
-	//initCom();
+	initCom();
 	printf("end init com \n");
 
 	//init A*
 	initObstacle();
 
 	//init méca
-	//mecaCom(TIROIR_FERMER);
-	//mecaCom(PEIGNE_FERMER);
-	
-	uint8_t team;
+	mecaCom(TIROIR_FERMER);
+	mecaCom(PEIGNE_FERMER);
+	wait_ms(2000);
+	mecaCom(TIROIR_OUVERT);
+	mecaCom(PEIGNE_OUVERT);
+	while(1);
 	if(SWITCH_TEAM)//cable noir
 	{
 		team = RED;
@@ -136,7 +138,6 @@ int main(void)
 	{
 		team = YELLOW;
 	}
-	
 	
 	printf("team %d \n ",team);
 	
@@ -161,15 +162,14 @@ int main(void)
 	if(team == RED)
 	{
 
-		//findPosition(team);
-		
+		findPosition(team);
 			// attend que la tirette soit retirée
 		//while (!TIRETTE);
 		
 		//position_set_x_cm(&pos,20.0);
 		//position_set_y_cm(&pos,20.0);
 		//enableSpinning();
-		position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(20.0), fxx_from_double(0.0));
+		//position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(20.0), fxx_from_double(0.0));
 
 		printf("begin match \n");	    
 		
@@ -184,11 +184,11 @@ int main(void)
 		}
 	else // Team jaune
 	{
-		//findPosition(team);
-
+		findPosition(team);
+		while(1);
 			// attend que la tirette soit retirée
 		//while (!TIRETTE);
-		position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(280.0), fxx_from_double(0.0));
+		//position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(280.0), fxx_from_double(0.0));
 		//enableSpinning();
 		printf("begin match \n");
 		printf("start pos: x %lf pos y %lf \n",position_get_x_cm(&pos),position_get_y_cm(&pos));
@@ -260,8 +260,8 @@ int main(void)
 		
 		for(int i = 1;i<16;i++)
 		{
-		trajectory_goto_arel(&traj, END, 180 * i);
-		while(!trajectory_is_ended(&traj));
+			trajectory_goto_arel(&traj, END, 180 * i);
+			while(!trajectory_is_ended(&traj));
 		}	
 	//printf("astar test \n");	    
 	//set_startCoor(G_LENGTH * 2 + 2);
@@ -283,22 +283,22 @@ int main(void)
 
 	void findPosition(uint8_t type)
 	{
-		if(RED)
+		asserv_set_vitesse_low(&asserv);
+		if(team == RED)
 		{
 			trajectory_goto_d(&traj, END, -100);
 			while(!trajectory_is_ended(&traj))
 			{
 				if(REPOSITIONING)
-			{//stop the trajectory
-				trajectory_reinit(&traj);
-				asserv_stop(&asserv);
-				
-				position_set_xya_cm_deg(&pos,position_get_y_cm(&pos),fxx_from_double(DIST_CENTRE), fxx_from_double(DIST_CENTRE));
+				{//stop the trajectory
+					trajectory_reinit(&traj);
+					asserv_stop(&asserv);
+
+				}
 			}
-		}
 			trajectory_goto_d(&traj, END, 20 - DIST_CENTRE);//dist centre = 12.2
 			while(!trajectory_is_ended(&traj));
-			trajectory_goto_a(&traj, END, 0);
+			trajectory_goto_arel(&traj, END, -90.0);
 			while(!trajectory_is_ended(&traj));
 			trajectory_goto_d(&traj, END, -100);
 			while(!trajectory_is_ended(&traj))
@@ -307,12 +307,20 @@ int main(void)
 				{
 					trajectory_reinit(&traj);
 					asserv_stop(&asserv);
-					
-					position_set_xya_cm_deg(&pos,fxx_from_double(DIST_CENTRE),position_get_x_cm(&pos), position_get_angle_deg(&pos));
 				}
 			}
+
+
 			trajectory_goto_d(&traj, END, 20 - DIST_CENTRE);
 			while(!trajectory_is_ended(&traj));
+			//asserv_set_distance()
+
+			cli();
+			printf("pos asserv a : %lu %lu \n",U_ASSERV_ANGLE,U_PM_ANGLE);
+
+
+			position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(20.0), fxx_from_double(0.0));
+			asserv_stop(&asserv);//attention bug bizare avant			
 		}
 		else
 		{
@@ -325,30 +333,41 @@ int main(void)
 				
 				trajectory_reinit(&traj);
 				asserv_stop(&asserv);
-				
-
-				position_set_xya_cm_deg(&pos,position_get_x_cm(&pos),fxx_from_double(300 - DIST_CENTRE), fxx_from_double(-90.0));
 			}
 		}
 			trajectory_goto_d(&traj, END, 20 - DIST_CENTRE);//dist centre = 12.2
 			while(!trajectory_is_ended(&traj));
-			trajectory_goto_a(&traj, END, 0);
+			trajectory_goto_arel(&traj, END, 90.0);
 			while(!trajectory_is_ended(&traj));
 			trajectory_goto_d(&traj, END, -100);
 			while(!trajectory_is_ended(&traj))
 			{
 				if(REPOSITIONING)
 				{
-					
 					trajectory_reinit(&traj);
 					asserv_stop(&asserv);
-					
-					position_set_xya_cm_deg(&pos,fxx_from_double(DIST_CENTRE),position_get_x_cm(&pos), position_get_angle_deg(&pos));
 				}
 			}
 			trajectory_goto_d(&traj, END, 20 - DIST_CENTRE);
 			while(!trajectory_is_ended(&traj));
+			cli();
+
+			printf("pos asserv a : %lu %lu \n",U_ASSERV_ANGLE,U_PM_ANGLE);
+
+			position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(280.0), fxx_from_double(0.0));
+			asserv_stop(&asserv);
+
+
 		}
+		printf("pos asserv a : %lu %lu \n",U_ASSERV_ANGLE,U_PM_ANGLE);
+
+
+		quadramp_reset(&asserv);
+		control_reset(&asserv);
+		pid_reset(&asserv);
+		diff_reset(&asserv);
+		sei();
+		asserv_set_vitesse_normal(&asserv);
 	}
 
 	void takeFruitRed()
@@ -358,7 +377,7 @@ int main(void)
 		printf("start pos: %d eps %lf \n",position_get_coor_eps(&pos, &eps),eps);
 
 		set_goalCoor(G_LENGTH * 5 + 2);
-			
+
 		if (eps > EPSILON)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
@@ -416,13 +435,13 @@ int main(void)
 
 		double eps = 0;
 		set_startCoor(position_get_coor_eps(&pos,&eps));
-printf("start pos: %d eps %lf \n",position_get_coor_eps(&pos, &eps),eps);
+		printf("start pos: %d eps %lf \n",position_get_coor_eps(&pos, &eps),eps);
 		set_goalCoor(G_LENGTH * 8 + 10);
 		
 		if (eps > EPSILON)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
-		}    
+		}
 		
 
 		
@@ -473,7 +492,6 @@ printf("start pos: %d eps %lf \n",position_get_coor_eps(&pos, &eps),eps);
 		while(!trajectory_is_ended(&traj));
 		
 		//mecaCom(PEIGNE_FERMER);
-
 	}
 
 	void putFruit(int8_t team)

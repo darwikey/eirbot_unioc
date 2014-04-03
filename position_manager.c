@@ -4,7 +4,7 @@
 #include <uart.h>
 #include "position_manager.h"
 #include "astar.h"
-
+#include "asserv_manager.h"
 
 int32_t offset_x = 0;
 int32_t offset_y = 0;

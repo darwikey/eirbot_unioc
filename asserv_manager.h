@@ -51,6 +51,10 @@ void asserv_set_no_angle(asserv_manager_t *);
 void asserv_set_vitesse_low(asserv_manager_t *);
 void asserv_set_vitesse_normal(asserv_manager_t *);
 void asserv_set_vitesse_ultrafast(asserv_manager_t *);
+void pid_reset(asserv_manager_t *t);
+void quadramp_reset(asserv_manager_t *t);
+void control_reset(asserv_manager_t *t);
+void diff_reset(asserv_manager_t *t);
 //void antipatinage(void);
 
 #endif //ASSERV_MANAGER_H
