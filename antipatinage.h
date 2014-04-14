@@ -6,7 +6,7 @@
 
 void antipatinage_init(void);
 
-void antipatinage_scheduler();
+void antipatinage_scheduler(void);
 
 uint8_t roue_patine(void); 
 

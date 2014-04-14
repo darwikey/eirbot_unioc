@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include "position_manager.h"
 #include "trajectory_manager.h"
-
+#include "avoidance.h"
 
 #define DIST  10
 #define OBSTACLE 1
@@ -81,6 +81,7 @@ coordinate getCoor(node n);
 void initObstacle(void);
 void polishing(mvStack *s);
 int8_t astarMv(void);
+void printGraphe(void);
 
 
 uint8_t get_startCoor(void);
