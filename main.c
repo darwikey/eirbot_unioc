@@ -191,7 +191,7 @@ int main(void)
 		putPaint();
 		
 	}
-	else // Team jaune
+	e*lse // Team jaune
 	{
 		findPosition(team);
 		// attend que la tirette soit retirée
@@ -574,7 +574,7 @@ uint8_t mecaCom(uint8_t ordre)
 			trajectory_goto_a(&traj, END, 0);
 			trajectory_goto_d(&traj, END,15);
 			while(!trajectory_is_ended(&traj));
-		}
+		}-
 		else
 		{
 			
