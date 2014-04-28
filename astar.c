@@ -608,13 +608,13 @@ void printGraphe(void)
     {
       printf("\n");
     }
-    if(graphe[i].parent == 0)
+    //if(graphe[i].parent == 0)
     {
-      printf(" %d ",graphe[i].type);
+      printf("%d ",graphe[i].type);
     }
-    else
+    //else
     {
-      printf(" %d ",graphe[i].parent->coor);
+      //printf("%d\t",graphe[i].parent->coor);
     }
   }
 }

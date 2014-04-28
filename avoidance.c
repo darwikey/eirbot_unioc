@@ -35,23 +35,24 @@ void adversary_detection_traj(void*p)
   // désactive le scheduler pour éviter qu'il se déclenche pendant le calcul
   scheduler_del_event(id_scheduler);
 
-  int coorD = gp2_get_coor_obstacle(GP2_RIGHT, 40);
+  uint8_t coorD = gp2_get_coor_obstacle(GP2_RIGHT, 40);
 
-  int coorG = gp2_get_coor_obstacle(GP2_LEFT,40);
+  uint8_t coorG = 0;//gp2_get_coor_obstacle(GP2_LEFT,40);
 
   // check si on a détecté quelque chose, -1 = rien
+  uint8_t coor = 0;
+  uint8_t obstacle = 0;
 
   if (coorD != -1 || coorG != -1)
   { 
-    uint8_t obstacle = 0;
-    int coor = 0;
+    
     if(coorD != -1)
     {
      obstacle = (graphe[coorD].type != OBSTACLE);
      coor = coorD;
      //printf("coorD %d\n",coorD );
    }
-   if(coorG != -1 && obstacle != 0)
+   else if(coorG != -1)
    {
      obstacle = (graphe[coorG].type != OBSTACLE);
      coor = coorG;
@@ -63,14 +64,14 @@ void adversary_detection_traj(void*p)
 
       // Si c'est un obstacle non connu on panique
 
-   if(!obstacle)
+   if(obstacle)
    {
      printf("stop the trajectory \n");
 
      switch (detection_behaviour)
      {
        case BEHAVIOUR_STOP:
-       trajectory_pause(&traj);
+       //trajectory_pause(&traj);
        break;
 
        case BEHAVIOUR_ASTAR:
@@ -118,8 +119,8 @@ void adversary_detection_traj(void*p)
 
  void go_to_node(double position_x, double position_y)
  {
-   int x = (int) position_x;
-   int y = (int) position_y;
+   int16_t x = (int16_t) position_x;
+   int16_t y = (int16_t) position_y;
    printf("go_to_node ;   actuellement : (x: %d , y: %d);   ",x/UNIT, y/UNIT);
 
    uint8_t goalCoor = get_goalCoor();
@@ -185,12 +186,13 @@ if(bestDist == UINT16_MAX)
 
 if(bestCoor)
 {
-
+  printf("x:%d , y%d",x,y);
   printf("bestCoor : %d : x %d y:%d \n",bestCoor,bestCoor%G_LENGTH,bestCoor/G_LENGTH);
-  double angle = atan2(UNIT * (bestCoor/G_LENGTH) - y,UNIT * (bestCoor%G_LENGTH) - x);
+  double angle = atan2(UNIT * (bestCoor/G_LENGTH) - y , UNIT * (bestCoor%G_LENGTH) - x);
   uint16_t dist =  (UNIT * (bestCoor/G_LENGTH) - y)*(UNIT * (bestCoor/G_LENGTH) - y) + 
   (UNIT * (bestCoor%G_LENGTH) - x)*(UNIT * (bestCoor%G_LENGTH) - x);
-  angle = 180.0*angle/M_PI;
+  
+  angle = -(180.0*angle/M_PI - 90.0);
   
   
   printf("dist : %d ,angle : %lf \n",dist,angle);

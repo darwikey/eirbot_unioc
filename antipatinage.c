@@ -45,7 +45,7 @@ void antipatinage_scheduler(void)
   
 static k = 0;
 
-  printf("diffencD %ld    diffmotD %ld    diffencG %ld    diffmotG %ld\n", encodeur_droit - old_encodeur_droit, moteur_droit - old_moteur_droit, encodeur_gauche - old_encodeur_gauche, moteur_gauche - old_moteur_gauche);
+ // printf("diffencD %ld    diffmotD %ld    diffencG %ld    diffmotG %ld\n", encodeur_droit - old_encodeur_droit, moteur_droit - old_moteur_droit, encodeur_gauche - old_encodeur_gauche, moteur_gauche - old_moteur_gauche);
 
   // printf("encD %ld    motD %ld    encG %ld    motG %ld\n", encodeur_droit, moteur_droit, encodeur_gauche, moteur_gauche);   
 

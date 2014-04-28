@@ -106,8 +106,6 @@ int main(void)
 	printf("init i2c \n");
 	scheduler_init();
 
-	avoidance_init();
-	antipatinage_init();
 
 	position_init(&pos);
 	asserv_init(&asserv,&pos);
@@ -158,8 +156,13 @@ int main(void)
 	// 	while(trajectory_is_ended(&traj));
 	// 	while(1);
 	// }
-	// test_evitement();
-	// while(1);
+	avoidance_init();
+	antipatinage_init();
+
+	test_evitement();
+	while(1);
+
+
 
 
 	if(team == RED)
@@ -182,16 +185,16 @@ int main(void)
 		takeFruitRed();
 		putFruit();
 
-		// disableSpinning();
-		// findPosition(YELLOW);
-		// enableSpinning();
-
+		disableSpinning();
+		findPosition(YELLOW);
+		enableSpinning();
+		printf("coor : x: %d y %d \n",position_get_coor(&pos)%G_LENGTH,position_get_coor(&pos)/G_LENGTH);	
 		takeFruitYellow();
 		putFruit();
 		putPaint();
 		
 	}
-	e*lse // Team jaune
+	else // Team jaune
 	{
 		findPosition(team);
 		// attend que la tirette soit retirée
@@ -202,22 +205,14 @@ int main(void)
 		printf("begin match \n");
 		printf("start pos: x %lf pos y %lf \n",position_get_x_cm(&pos),position_get_y_cm(&pos));
 
-		// takeFruitRed();
-
 		
 		takeFruitYellow();          
 		putFruit();
 
-		// disableSpinning();
-		// findPosition(RED);
-		// enableSpinning();
-		// team = RED;
-		// disableSpinning();
-		// findPosition(RED);
-		// enableSpinning();
-
+		disableSpinning();
+		findPosition(RED);
+		enableSpinning();
 		takeFruitRed();
-		// team = YELLOW;
 		putFruit();
 		putPaint();
 
@@ -283,10 +278,11 @@ uint8_t mecaCom(uint8_t ordre)
 	{
 		disableSpinning();	
 
-		findPosition(team);
+		findPosition(YELLOW);
 
 		enableSpinning();	
-		putPaint();
+		takeFruitRed();
+		//putPaint();
 
 
 		// trajectory_goto_d(&traj, END, -15);
@@ -335,7 +331,7 @@ uint8_t mecaCom(uint8_t ordre)
 		asserv_set_vitesse_low(&asserv);
 		if(type == RED)
 		{
-			trajectory_goto_d(&traj, END, -100);
+			trajectory_goto_d(&traj, END, -200);
 			while(!trajectory_is_ended(&traj))
 			{
 				if(REPOSITIONING)
@@ -349,7 +345,7 @@ uint8_t mecaCom(uint8_t ordre)
 			while(!trajectory_is_ended(&traj));
 			trajectory_goto_arel(&traj, END, -90.0);
 			while(!trajectory_is_ended(&traj));
-			trajectory_goto_d(&traj, END, -100);
+			trajectory_goto_d(&traj, END, -200);
 			while(!trajectory_is_ended(&traj))
 			{
 				if(REPOSITIONING)
@@ -373,7 +369,7 @@ uint8_t mecaCom(uint8_t ordre)
 		}
 		else
 		{			
-			trajectory_goto_d(&traj, END, -100);
+			trajectory_goto_d(&traj, END, -200);
 			while(!trajectory_is_ended(&traj))
 			{
 				if(REPOSITIONING)
@@ -387,7 +383,7 @@ uint8_t mecaCom(uint8_t ordre)
 			while(!trajectory_is_ended(&traj));
 			trajectory_goto_arel(&traj, END, 90.0);
 			while(!trajectory_is_ended(&traj));
-			trajectory_goto_d(&traj, END, -100);
+			trajectory_goto_d(&traj, END, -200);
 			while(!trajectory_is_ended(&traj))
 			{
 				if(REPOSITIONING)
@@ -424,7 +420,7 @@ uint8_t mecaCom(uint8_t ordre)
 		set_startCoor(position_get_coor_eps(&pos, &eps));
 		printf("start pos: %d eps %lf \n",position_get_coor_eps(&pos, &eps),eps);
 
-			set_goalCoor(G_LENGTH * 5 + 2);
+		set_goalCoor(G_LENGTH * 5 + 2);
 
 		if (eps > EPSILON)
 		{
@@ -449,32 +445,16 @@ uint8_t mecaCom(uint8_t ordre)
 		while(!trajectory_is_ended(&traj));
 		wait_ms(200);
 		trajectory_goto_d(&traj, END,60);
-		while(!trajectory_is_ended(&traj));
-		
+		trajectory_goto_a(&traj, END,45);
+		trajectory_goto_d(&traj, END,10 * 1.414);
+		// trajectory_goto_a(&traj, END, 0);
+		// trajectory_goto_d(&traj, END,10);
 		trajectory_goto_a(&traj, END, 90);
-		while(!trajectory_is_ended(&traj));
-
-		trajectory_goto_d(&traj, END,13);
-		while(!trajectory_is_ended(&traj));
-		
-		
-		trajectory_goto_a(&traj, END, 0);
-		while(!trajectory_is_ended(&traj));
-
-		trajectory_goto_d(&traj, END,10);
-		while(!trajectory_is_ended(&traj));
-		
-
-		trajectory_goto_a(&traj, END, 90);
-		while(!trajectory_is_ended(&traj));
-
 		trajectory_goto_d(&traj, END,60);
 		while(!trajectory_is_ended(&traj));
 		mecaCom(PEIGNE_FERMER);
 		
 		trajectory_goto_a(&traj, END, 180);
-		while(!trajectory_is_ended(&traj));
-
 		trajectory_goto_d(&traj, END,10);
 		while(!trajectory_is_ended(&traj));
 	}
@@ -518,7 +498,7 @@ uint8_t mecaCom(uint8_t ordre)
 		trajectory_goto_a(&traj, END, 135);
 		while(!trajectory_is_ended(&traj));
 
-		trajectory_goto_d(&traj, END, 8 * 1.414);
+		trajectory_goto_d(&traj, END, 13 * 1.414);
 		while(!trajectory_is_ended(&traj));
 		
 		// trajectory_goto_a(&traj, END, 90);
@@ -531,13 +511,13 @@ uint8_t mecaCom(uint8_t ordre)
 		trajectory_goto_a(&traj, END, 180);
 		while(!trajectory_is_ended(&traj));
 
-		trajectory_goto_d(&traj, END, 60);
+		trajectory_goto_d(&traj, END, 55);
 		while(!trajectory_is_ended(&traj));
 		
 		trajectory_goto_a(&traj, END, -90);
 		while(!trajectory_is_ended(&traj));
 
-		trajectory_goto_d(&traj, END, 8);
+		trajectory_goto_d(&traj, END, 13);
 		while(!trajectory_is_ended(&traj));
 		
 		mecaCom(PEIGNE_FERMER);
@@ -549,6 +529,7 @@ uint8_t mecaCom(uint8_t ordre)
 		double eps = 0;
 		set_startCoor(position_get_coor_eps(&pos,&eps));
 		printf("start pos: %d eps %lf \n", position_get_coor_eps(&pos, &eps),eps);
+		static uint8_t k = 0;
 
 		if(team == RED)
 		{
@@ -562,7 +543,15 @@ uint8_t mecaCom(uint8_t ordre)
 			
 			trajectory_goto_a(&traj, END, 180);      	     
 			trajectory_goto_d(&traj, END, 15);
-			trajectory_goto_a(&traj, END, -90);      
+			if(k)
+			{
+				trajectory_goto_a(&traj, END, -90);	
+			}
+			else
+			{
+				trajectory_goto_a(&traj, END, -86);
+			}
+
 			trajectory_goto_d(&traj, END, -40);
 			while(!trajectory_is_ended(&traj));
 
@@ -570,15 +559,16 @@ uint8_t mecaCom(uint8_t ordre)
 			wait_ms(2000);
 
 			mecaCom(TIROIR_FERMER);
-			trajectory_goto_d(&traj, END, 40);
-			trajectory_goto_a(&traj, END, 0);
-			trajectory_goto_d(&traj, END,15);
+			trajectory_goto_d(&traj, END, -60);
+			//trajectory_goto_a(&traj, END, 0);
+			//trajectory_goto_d(&traj, END,15);
 			while(!trajectory_is_ended(&traj));
-		}-
+		}
 		else
 		{
 			
 			set_goalCoor(G_LENGTH * 3 + 7);
+			
 
 			if (eps > EPSILON)
 			{
@@ -587,14 +577,18 @@ uint8_t mecaCom(uint8_t ordre)
 			while(!astarMv());
 			
 			trajectory_goto_a(&traj, END, 180);
-			while(!trajectory_is_ended(&traj));
 			
-			// trajectory_goto_d(&traj, END, 12);
-			// while(!trajectory_is_ended(&traj));
-			
-			trajectory_goto_a(&traj, END, -90);
-			while(!trajectory_is_ended(&traj));
-			
+			if(k)
+			{
+				trajectory_goto_d(&traj, END, 12);
+				trajectory_goto_a(&traj, END, -90);
+
+			}
+			else
+			{
+				trajectory_goto_a(&traj, END, -86);
+			}
+
 			trajectory_goto_d(&traj, END, 60);
 			while(!trajectory_is_ended(&traj));
 			
@@ -604,18 +598,26 @@ uint8_t mecaCom(uint8_t ordre)
 			mecaCom(TIROIR_FERMER);
 			
 			trajectory_goto_d(&traj, END, 60);
+			if(k)
+			{
+				trajectory_goto_a(&traj, END, 0);
+				trajectory_goto_d(&traj, END, 12);
+			}
+			else
+			{	
+				trajectory_goto_a(&traj, END, 90);
+	
+				k = 1;
+				//trajectory_goto_d(&traj, END, 0);
+			}
 			while(!trajectory_is_ended(&traj));
 
-			trajectory_goto_a(&traj, END, 0);
-			while(!trajectory_is_ended(&traj));
-
-			trajectory_goto_d(&traj, END, 0);
-			while(!trajectory_is_ended(&traj));
 
 		}
 	}
 	void putPaint(void)
 	{
+		printf("putFruit \n");
 		double eps = 0;
 		set_startCoor(position_get_coor_eps(&pos,&eps));
 		
@@ -627,9 +629,13 @@ uint8_t mecaCom(uint8_t ordre)
 		}    
 		while(!astarMv())
 
+		printf("angle %lf \n",position_get_angle_deg(&pos));
+
 		trajectory_goto_a(&traj, END, 0);
 		while(!trajectory_is_ended(&traj));
 
+		printf("angle %lf \n",position_get_angle_deg(&pos));
+		
 		trajectory_goto_d(&traj, END, -100);
 		while(!trajectory_is_ended(&traj));			
 
