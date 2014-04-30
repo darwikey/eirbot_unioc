@@ -48,6 +48,7 @@ void putFruit(void);
 void takeFruitYellow(void);
 void takeFruitRed(void);
 void putPaint(void);
+void calibrateGP2(void);
 
 /////////////////////////////////////
 // Variables globales
@@ -69,6 +70,32 @@ uint8_t team;
 /////////////////////////////////////
 int main(void)
 {
+	/////////////////////////////////////
+	///TODO//////////////////////////////
+	/////////////////////////////////////
+	//(!!!)Debuger l'evitement 
+	//			verifier les valeurs des gp2
+	//			verifier l'emplacement des obstacles->(printGraphe)
+	//Retirer les obstacles apres 5 secs
+	//Rajouter des gp2 lateraux (vers l'avant du robot) et le code qui les fait marcher
+	//(gp2 Arriere pour autoriser la marche arriere)
+	//
+	//(!!!)Mettre en place les lanceurs de balles
+	//Faire le programme du lanceur de balle
+	//			Deux fonctions lancer balles mammouth jaune et mammouth
+	//Programmer la nouvelle carte Meca
+	//
+	//Faire une gestion des taches (sami)
+	//
+	//Rajouter des fonctions pour gerer les actions assez simples (sami)
+	//
+	//(!!!)Mettre le filet sur le robot principal (ou faire une PMI qui ne fait que lancer le filet)
+	//
+	//participer a la coupe
+	/////////////////////////////////////
+
+
+
 
 	/////////////////////////////////////
 	//Initialisations////////////////////
@@ -156,11 +183,11 @@ int main(void)
 	// 	while(trajectory_is_ended(&traj));
 	// 	while(1);
 	// }
-	avoidance_init();
+//	avoidance_init();
 	antipatinage_init();
 
-	test_evitement();
-	while(1);
+	// test_evitement();
+	// while(1);
 
 
 
@@ -285,16 +312,7 @@ uint8_t mecaCom(uint8_t ordre)
 		//putPaint();
 
 
-		// trajectory_goto_d(&traj, END, -15);
-		// while(!trajectory_is_ended(&traj));
-		// for (int i = 0; i < 15; ++i)
-		// {
-		// 	wait_ms(500);
-		// 	printf("gp2 right %d gp2 left %d \n",adc_get_value(ADC_REF_AVCC | MUX_ADC0),adc_get_value(ADC_REF_AVCC | MUX_ADC1));
 
-		// 	trajectory_goto_d(&traj, END, -10);
-		// 	while(!trajectory_is_ended(&traj));
-		// }
 
 
 		// trajectory_goto_d(&traj, END, 10);
@@ -638,5 +656,26 @@ uint8_t mecaCom(uint8_t ordre)
 		
 		trajectory_goto_d(&traj, END, -100);
 		while(!trajectory_is_ended(&traj));			
+
+	}
+
+	void calibrateGP2(void)
+	{
+				////////////////////////////////////////
+		//Code de Recuperation des valeurs des gp2 avant
+		////////////////////////////////////////
+		////////////////////////////////////////
+		//Placer le robot face a un mur
+		////////////////////////////////////////
+		 trajectory_goto_d(&traj, END, -15);
+		 while(!trajectory_is_ended(&traj));
+		 for (int i = 0; i < 15; ++i)
+		 {
+		 	wait_ms(500);
+		 	printf("gp2 right %d gp2 left %d \n",adc_get_value(ADC_REF_AVCC | MUX_ADC0),adc_get_value(ADC_REF_AVCC | MUX_ADC1));
+
+		 	trajectory_goto_d(&traj, END, -10);
+		 	while(!trajectory_is_ended(&traj));
+		 }
 
 	}
