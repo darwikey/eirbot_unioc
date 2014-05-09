@@ -6,6 +6,10 @@
 #define U_ENC1 (_SFR_MEM32(0x8004))
 #define U_ENC2 (_SFR_MEM32(0x8008))
 #define U_ENC3 (_SFR_MEM32(0x800C))
+/*#define U_ENC1 (_SFR_MEM32(0x8000))
+#define U_ENC0 (_SFR_MEM32(0x8004))
+#define U_ENC3 (_SFR_MEM32(0x8008))
+#define U_ENC2 (_SFR_MEM32(0x800C))*/
 
 //ENC MAN
 #define U_ENC_MAN (_SFR_MEM16(0x80FE))

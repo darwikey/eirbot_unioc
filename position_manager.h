@@ -1,7 +1,7 @@
 #ifndef POSITION_MANAGER_H
 #define POSITION_MANAGER_H
 
-#define ROBOT_PM_UPDATE_TIME 15000
+#define ROBOT_PM_UPDATE_TIME 7000//15000
 
 #define ROBOT_IMP_PI  (49270.0/5.1705) //(49270.0/5.870) // (49270.0/5.824) 
 #define ROBOT_IMP_CM 111
@@ -21,10 +21,12 @@ typedef struct
   //fpga brut
   int32_t distance;
   int32_t angle;
-  int32_t x;
+  int32_t x;//ne viennent plus du FPGA
   int32_t y;
   
   //infos deduites
+  double sum_x;
+  double sum_y;
   int32_t angle_mod_2pi;
   int32_t vitesse_distance;
   int32_t vitesse_angle;

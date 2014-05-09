@@ -57,4 +57,8 @@ void control_reset(asserv_manager_t *t);
 void diff_reset(asserv_manager_t *t);
 //void antipatinage(void);
 
+void asserv_left_pwm(void* p, int32_t val);
+void asserv_right_pwm(void* p, int32_t val);
+int32_t asserv_left_mot_encoder(void* p);
+int32_t asserv_right_mot_encoder(void* p);
 #endif //ASSERV_MANAGER_H

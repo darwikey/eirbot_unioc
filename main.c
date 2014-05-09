@@ -22,9 +22,9 @@
 #define DIST_CENTRE 12.25
 
 // Interrupteur
-#define REPOSITIONING (PINE & 0x10)
-#define TIRETTE (PINE & 0x8) 
-#define SWITCH_TEAM (PINE & 0x40)
+#define REPOSITIONING (PINE & 0x10) // SORTIE 4
+#define TIRETTE (PINE & 0x8) // SORTIE 3
+#define SWITCH_TEAM (PINE & 0x40) // SOERTIE 6
 
 // Marge d'erreur sur le positionnement lorsque le robot est  au centre d'un case
 #define EPSILON 4.0
@@ -35,6 +35,7 @@
 #define RED 1
 #define YELLOW 0
 
+#define ENABLE_MECA
 #define MAXIME 0
 
 /////////////////////////////////////
@@ -104,7 +105,7 @@ int main(void)
 	time_init(128);
 	printf("fdevopen \n");
 	fdevopen(uart0_send,NULL, 0);
-	/***** tip -s 9600 -l /dev/ttyS0 *****/
+	// Affichage uart: tip -s 9600 -l /dev/ttyS0
 	// prog usb : 
 	// avarice -j /dev/ttyUSB0 --erase --program -f ./main.hex
 
@@ -142,30 +143,32 @@ int main(void)
 	sei(); 
 
 	//init communication
+	#ifdef ENABLE_MECA
 	printf("init com \n");
 	initCom();
 	printf("end init com \n");
+	#endif
 
 	//init A*
 	initObstacle();
-	// mecaCom(TIROIR_OUVERT);
-	// mecaCom(PEIGNE_OUVERT);
-	// wait_ms(2000);
-
+ 
 	//init méca
+	#ifdef ENABLE_MECA
 	mecaCom(TIROIR_FERMER);
 	mecaCom(PEIGNE_FERMER);
+	#endif
+	
 	// while(1);
 	if(SWITCH_TEAM)//cable noir
 	{
 		team = RED;
+		printf("team rouge\n");
 	}
 	else//cable violet
 	{ 
 		team = YELLOW;
+		printf("team jaune\n");
 	}
-	
-	printf("team %d \n ",team);
 	
 	while(MAXIME);//boucle anti_maxime
 
@@ -184,17 +187,33 @@ int main(void)
 	// 	while(1);
 	// }
 //	avoidance_init();
-	antipatinage_init();
+//	antipatinage_init();
 
 	// test_evitement();
 	// while(1);
 
+	/*wait_ms(1000);
+	asserv_set_vitesse_low(&asserv);
+        trajectory_goto_d(&traj, END, 20);
+	trajectory_goto_arel(&traj, END, 90);
 
+		while(1)
+	  {
+	    //printf("d: %ld     a: %ld    a_deg: %lf   a_rad %lf    x : %ld   y : %ld \n", (int32_t)(pos.distance / 111), (int32_t)(pos.angle), (double)pos.angle * (180.0 / ROBOT_IMP_PI), (double)pos.angle * 0.000329686, (int32_t)(pos.x / 111), (int32_t)(pos.y / 111));
 
+	    int32_t encodeur_gauche = U_ENC1;
+	      int32_t encodeur_droit = U_ENC3;
+	      int32_t moteur_gauche = U_ENC0;
+	      int32_t moteur_droit = U_ENC2;
+	      printf("enc G : %ld     enc D : %ld     motG : %ld     mot D : %ld\n", encodeur_gauche, encodeur_droit, moteur_gauche, moteur_droit);
+	      wait_ms(100);
+	      }*/
+
+	
 
 	if(team == RED)
 	{
-		findPosition(team);
+	  findPosition(team);
 		// attend que la tirette soit retirée
 		while (!TIRETTE);
 		
@@ -223,7 +242,7 @@ int main(void)
 	}
 	else // Team jaune
 	{
-		findPosition(team);
+	  findPosition(team);
 		// attend que la tirette soit retirée
 		while (!TIRETTE);
 		//position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(280.0), fxx_from_double(0.0));
@@ -269,9 +288,10 @@ void initCom(void)
 
 //*** Com avec la Carte Meca***
 uint8_t mecaCom(uint8_t ordre) 
-	{//BA2
-		I2C_DISPO = 0;
-		uint8_t result = -1;
+{//BA2
+   uint8_t result = -1;
+   #ifdef ENABLE_MECA	
+	I2C_DISPO = 0;
 
 		i2cm_send(mecaADDR,1,&ordre);
 		wait_ms(100);
@@ -293,13 +313,15 @@ uint8_t mecaCom(uint8_t ordre)
 			i++;
 			if (i >= 20)
 			{
-				printf("Erreur de communication avec la carte méca");
+				printf("Erreur de communication avec la carte méca\n");
 			}
 		}
 
 		I2C_DISPO = 1;
+   #endif
 		return -result;
-	}
+
+}
 
 	void test_evitement(void)
 	{
@@ -385,18 +407,18 @@ uint8_t mecaCom(uint8_t ordre)
 			position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(20.0), fxx_from_double(0.0));
 			asserv_stop(&asserv);//attention bug bizare avant			
 		}
-		else
+		else // team == YELLOW
 		{			
 			trajectory_goto_d(&traj, END, -200);
 			while(!trajectory_is_ended(&traj))
 			{
 				if(REPOSITIONING)
-			{//stop the trajectory
+				  {//stop the trajectory
 				
-				trajectory_reinit(&traj);
-				asserv_stop(&asserv);
+				    trajectory_reinit(&traj);
+				    asserv_stop(&asserv);
+				  }
 			}
-		}
 			trajectory_goto_d(&traj, END, 20 - DIST_CENTRE);//dist centre = 12.2
 			while(!trajectory_is_ended(&traj));
 			trajectory_goto_arel(&traj, END, 90.0);
@@ -421,7 +443,7 @@ uint8_t mecaCom(uint8_t ordre)
 
 
 		}
-		printf("pos asserv a : %lu %lu \n",U_ASSERV_ANGLE,U_PM_ANGLE);
+		//printf("pos asserv a : %lu %lu \n",U_ASSERV_ANGLE,U_PM_ANGLE);
 
 
 		quadramp_reset(&asserv);
@@ -430,6 +452,7 @@ uint8_t mecaCom(uint8_t ordre)
 		diff_reset(&asserv);
 		sei();
 		asserv_set_vitesse_normal(&asserv);
+
 	}
 
 	void takeFruitRed()

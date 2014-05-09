@@ -15,7 +15,7 @@
 #include <math.h>
 #include <scheduler.h>
 #include "asserv_manager.h"
-
+//#include <wait.h>
 
 void asserv_update_low_level(void * p);
 
@@ -51,7 +51,7 @@ void asserv_init_gain(asserv_manager_t * t)
   pid_set_out_shift(&t->pid_distance, 8);//8
 
 
-  pid_set_gains(&t->pid_angle, 100, 30, 800);//170,10,800
+  pid_set_gains(&t->pid_angle, 100, 30, 600);//100,30,800
   pid_set_maximums(&t->pid_angle, 0, 1000, 1500);//0,1000,1500
   pid_set_out_shift(&t->pid_angle, 9);//9
 
@@ -69,19 +69,36 @@ void asserv_init_gain(asserv_manager_t * t)
 
 void asserv_left_pwm(void* p, int32_t val)
 {
+  /*if(val > 600)
+    {
+      val = 600;
+    }
+  if(val < -600)
+    {
+      val = -600;
+      }*/
   U_MOT_G_RATIO = val;
 }
 void asserv_right_pwm(void* p, int32_t val)
 {
+  /*if(val > 600)
+    {
+      val = 600;
+    }
+  if(val < -600)
+    {
+      val = -600;
+      }*/
+
   U_MOT_D_RATIO = -val;
 }
 int32_t asserv_left_mot_encoder(void* p)
 {
-  return U_ENC1;
+  return ((int32_t)U_ENC1);
 }
 int32_t asserv_right_mot_encoder(void* p)
 {
-  return U_ENC3;
+  return ((int32_t)U_ENC3);
 }
 int32_t asserv_get_distance(void *p)
 {
@@ -214,8 +231,8 @@ if (is_scheduler == 0)
   scheduler_add_periodical_event(&asserv_update_low_level,(void*)t,ROBOT_ASSERV_UPDATE_TIME/SCHEDULER_UNIT);
   is_scheduler = 1;
 }
-//  asserv_right_pwm(0,1000);
-//  asserv_left_pwm(0,1000);
+//asserv_right_pwm(0,1000);
+  //asserv_left_pwm(0, 1000);
 
 }
 void asserv_send_motors_consigns(asserv_manager_t * t,int32_t d, int32_t theta){
@@ -300,7 +317,7 @@ void asserv_set_vitesse_normal(asserv_manager_t *t)
   quadramp_set_1st_order_vars(&t->qramp_distance, 50, 50); // 1200 500
 
  quadramp_set_2nd_order_vars(&t->qramp_angle, 4, 4);//4,4
-  quadramp_set_1st_order_vars(&t->qramp_angle, 200, 200);//400,400
+  quadramp_set_1st_order_vars(&t->qramp_angle, 150, 150);//200,200
 }
 void asserv_set_vitesse_ultrafast(asserv_manager_t *t)
 {

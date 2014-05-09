@@ -30,6 +30,7 @@ void position_begin_set(position_manager_t* pm, int16_t x, int16_t y, int16_t a)
 void position_init(position_manager_t * pm)//,notification_manager_t *not)
 {
   //pm->not = not;
+  pm->sum_x = pm->sum_y = 0.0;
   
   //init constantes
   // c_imp2deg = 180/ROBOT_IMP_PI
@@ -64,14 +65,20 @@ void position_init(position_manager_t * pm)//,notification_manager_t *not)
 
 void position_set_xya_cm_deg(position_manager_t *pm,fxx x,fxx y, fxx a)
 {
-  U_PM_X = position_cm2imp(pm,x);
-  U_PM_Y = position_cm2imp(pm,y);
+  //U_PM_X = position_cm2imp(pm,x);
+  //U_PM_Y = position_cm2imp(pm,y);
+  pm->sum_x = fxx_to_double(x);
+  pm->sum_y = fxx_to_double(y);   
   pm->cal_sec = position_deg2imp(pm,a);
-  U_PM_ANGLE = pm->cal_sec;
+  offset_a = U_PM_ANGLE - pm->cal_sec;
+  /*Ne marche plus avec notre fpga (les flags non supporté?) 
+    U_PM_ANGLE = pm->cal_sec;
   U_PM_FLAGS = U_PM_FLAGS_SET_REGISTERS;
   wait_ms(10);
   U_PM_FLAGS = 0;
-  pm->angle = U_PM_ANGLE;
+  pm->angle = U_PM_ANGLE;*/
+
+  //printf("angle fpga %ld\n", (int32_t)U_PM_ANGLE);
 }
 void position_update_low_level(void * arg)
 {
@@ -87,18 +94,33 @@ void position_update_low_level(void * arg)
 //  U_PM_FLAGS = U_PM_FLAGS_SET_REGISTERS;
   nop();
   
-
-
   //printf("dist %lf",position_get_distance(pm));
   //printf("distU %d",U_PM_DISTANCE);
 
 
+  /*pm->x = U_PM_X;// - offset_x;
+    pm->y = U_PM_Y;// - offset_y;*/
 
+  static int32_t _prev_distance = 0;
+ 
+  //on evite les valeurs nulles envoyées par le fpga 
+  if (U_PM_DISTANCE != 0)
+    {
+      pm->angle = (int32_t)U_PM_ANGLE - offset_a;
+      pm->distance = U_PM_DISTANCE;
+  
+      double _d = (double)(pm->distance - _prev_distance);
+      double _a = pm->angle * 0.000329686;
+      pm->sum_x += _d * cos(_a);
+      pm->sum_y += _d * sin(_a);
+      pm->x = pm->sum_x;
+      pm->y = pm->sum_y;
 
-  pm->angle = U_PM_ANGLE;// - offset_a;
-  pm->distance = U_PM_DISTANCE;
-  pm->x = U_PM_X;// - offset_x;
-  pm->y = U_PM_Y;// - offset_y;
+      _prev_distance = pm->distance;  
+    }
+
+ 
+  
   
   U_PM_FLAGS = 0;
 
