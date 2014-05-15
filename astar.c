@@ -257,6 +257,11 @@ void initObstacle()
   { 
     graphe[5*G_LENGTH +i ].type=OBSTACLE;
     graphe[6*G_LENGTH +i ].type=OBSTACLE;
+    
+  }
+
+  for(i=7;i<9;i++)
+  {
     graphe[4*G_LENGTH +i ].type=OBSTACLE;
     graphe[7*G_LENGTH +i ].type=OBSTACLE;
   }
@@ -598,6 +603,15 @@ void stopAstarMovement()
 {
   stopMovement = 1;
   stack_clear(&stack);
+}
+
+void putObstacle(uint8_t coor)
+{
+  graphe[coor].type = OBSTACLE;
+}
+void deleteObstacle(uint8_t coor)
+{
+ graphe[coor].type = 0; 
 }
 
 void printGraphe(void)

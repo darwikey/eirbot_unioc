@@ -14,8 +14,8 @@ int32_t offset_a = 0;
 // EIRBUG
 void position_abs(position_manager_t* pm, int16_t* x, int16_t* y, int16_t* a) {
 	*x = pm->acs_x_begin + fxx_to_double(position_get_x_cm(pm));
-        *y = pm->acs_y_begin - fxx_to_double(position_get_y_cm(pm));
-	*a = pm->acs_angle_begin + fxx_to_double(position_get_angle_mod2pi_deg(pm));	
+  *y = pm->acs_y_begin - fxx_to_double(position_get_y_cm(pm));
+  *a = pm->acs_angle_begin + fxx_to_double(position_get_angle_mod2pi_deg(pm));	
 }
 
 
@@ -67,17 +67,33 @@ void position_set_xya_cm_deg(position_manager_t *pm,fxx x,fxx y, fxx a)
 {
   //U_PM_X = position_cm2imp(pm,x);
   //U_PM_Y = position_cm2imp(pm,y);
-  pm->sum_x = fxx_to_double(x);
-  pm->sum_y = fxx_to_double(y);   
+  pm->sum_x = position_cm2imp(pm,x);
+  pm->sum_y = position_cm2imp(pm,y);
   pm->cal_sec = position_deg2imp(pm,a);
-  offset_a = U_PM_ANGLE - pm->cal_sec;
+
+  // on attend que la valeur soit non nulle
+  int32_t angle_fpga = U_PM_ANGLE;
+  while (angle_fpga == 0 || angle_fpga < - 50000 || angle_fpga > 50000)
+  {
+    printf("%d \n",- (1<<20));
+    printf("angle fpga %ld cal_sec %ld \n",angle_fpga,pm->cal_sec);
+    angle_fpga = U_PM_ANGLE;
+  }
+
+  offset_a = angle_fpga - pm->cal_sec;
+
+  printf("angle fpga %ld cal_sec %ld",angle_fpga,pm->cal_sec);
+  printf("angle offset %ld \n", offset_a);
   /*Ne marche plus avec notre fpga (les flags non supporté?) 
     U_PM_ANGLE = pm->cal_sec;
   U_PM_FLAGS = U_PM_FLAGS_SET_REGISTERS;
   wait_ms(10);
   U_PM_FLAGS = 0;
   pm->angle = U_PM_ANGLE;*/
-
+  pm->x = pm->sum_x;
+  pm->y = pm->sum_y;
+  pm->angle = pm->cal_sec;
+  position_update_low_level(pm);
   //printf("angle fpga %ld\n", (int32_t)U_PM_ANGLE);
 }
 void position_update_low_level(void * arg)
@@ -102,24 +118,24 @@ void position_update_low_level(void * arg)
     pm->y = U_PM_Y;// - offset_y;*/
 
   static int32_t _prev_distance = 0;
- 
+
   //on evite les valeurs nulles envoyées par le fpga 
   if (U_PM_DISTANCE != 0)
-    {
-      pm->angle = (int32_t)U_PM_ANGLE - offset_a;
-      pm->distance = U_PM_DISTANCE;
-  
-      double _d = (double)(pm->distance - _prev_distance);
-      double _a = pm->angle * 0.000329686;
-      pm->sum_x += _d * cos(_a);
-      pm->sum_y += _d * sin(_a);
-      pm->x = pm->sum_x;
-      pm->y = pm->sum_y;
+  {
+    pm->angle = (int32_t)U_PM_ANGLE - offset_a;
+    pm->distance = U_PM_DISTANCE;
 
-      _prev_distance = pm->distance;  
-    }
+    double _d = (double)(pm->distance - _prev_distance);
+    double _a = pm->angle * 0.000329686;
+    pm->sum_x += _d * cos(_a);
+    pm->sum_y += _d * sin(_a);
+    pm->x = pm->sum_x;
+    pm->y = pm->sum_y;
 
- 
+    _prev_distance = pm->distance;  
+  }
+
+
   
   
   U_PM_FLAGS = 0;
@@ -239,37 +255,37 @@ fxx position_get_y_cm(position_manager_t *pm)
 // renvoie la position courante dans le graphe
 uint8_t position_get_coor(position_manager_t *pm)
 {
-      double posx = pm->y * pm->c_imp2cm ;
-      double posy = pm->x * pm->c_imp2cm ;
-            
+  double posx = pm->y * pm->c_imp2cm ;
+  double posy = pm->x * pm->c_imp2cm ;
+
       // Calcule la coordonné la plus proche d'un noeud
-      uint8_t shift_x = ((int)posx) % UNIT >= UNIT/2;
-      uint8_t shift_y = ((int)posy) % UNIT >= UNIT/2;
-      
+  uint8_t shift_x = ((int)posx) % UNIT >= UNIT/2;
+  uint8_t shift_y = ((int)posy) % UNIT >= UNIT/2;
+
       //Now the value of x and y is in UNIT
-      uint8_t x = posx / UNIT + shift_x;
-      uint8_t y = posy / UNIT + shift_y;
-      
-      return x + G_LENGTH * y;
+  uint8_t x = posx / UNIT + shift_x;
+  uint8_t y = posy / UNIT + shift_y;
+
+  return x + G_LENGTH * y;
 }
 
 // renvoie la position courante dans le graphe
 uint8_t position_get_coor_eps(position_manager_t *pm, double *eps)
 {
-      double posx = pm->y * pm->c_imp2cm ;
-      double posy = pm->x * pm->c_imp2cm ;
-            
-      // Calcule la coordonné la plus proche d'un noeud
-      uint8_t shift_x = ((int)posx) % UNIT >= UNIT/2;
-      uint8_t shift_y = ((int)posy) % UNIT >= UNIT/2;
-      
-      //Now the value of x and y is in UNIT
-      uint8_t x = posx / UNIT + shift_x;
-      uint8_t y = posy / UNIT + shift_y;
-      
-      *eps = fabs(posx - (double)x*UNIT) + fabs(posx - (double)x*UNIT);
+  double posx = pm->y * pm->c_imp2cm ;
+  double posy = pm->x * pm->c_imp2cm ;
 
-      return x + G_LENGTH * y;
+      // Calcule la coordonné la plus proche d'un noeud
+  uint8_t shift_x = ((int)posx) % UNIT >= UNIT/2;
+  uint8_t shift_y = ((int)posy) % UNIT >= UNIT/2;
+
+      //Now the value of x and y is in UNIT
+  uint8_t x = posx / UNIT + shift_x;
+  uint8_t y = posy / UNIT + shift_y;
+
+  *eps = fabs(posx - (double)x*UNIT) + fabs(posx - (double)x*UNIT);
+
+  return x + G_LENGTH * y;
 }
 
 
@@ -304,5 +320,5 @@ void position_set_y_cm(position_manager_t *pm,double y_cm)
 void position_set_angle_deg(position_manager_t *pm,double deg)
 {
  fxx a = fxx_from_double(deg);
-  offset_a =  U_PM_ANGLE - a;
+ offset_a =  U_PM_ANGLE - a;
 }

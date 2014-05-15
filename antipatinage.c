@@ -25,8 +25,8 @@ void antipatinage_scheduler(void)
   //scheduler_del_event(id);
   //printf("...antipatinage...\n");
 
-  const int32_t epsEnc = 200;
-  const int32_t epsMoteur = 400;
+  // const int32_t epsEnc = 200;
+  // const int32_t epsMoteur = 400;
   
   static int32_t old_encodeur_gauche = 0.0;
   static int32_t old_encodeur_droit = 0.0;
@@ -43,11 +43,11 @@ void antipatinage_scheduler(void)
 
   int8_t avance = 0;
   
-static k = 0;
+static uint8_t k = 0;
 
  // printf("diffencD %ld    diffmotD %ld    diffencG %ld    diffmotG %ld\n", encodeur_droit - old_encodeur_droit, moteur_droit - old_moteur_droit, encodeur_gauche - old_encodeur_gauche, moteur_gauche - old_moteur_gauche);
 
-  // printf("encD %ld    motD %ld    encG %ld    motG %ld\n", encodeur_droit, moteur_droit, encodeur_gauche, moteur_gauche);   
+   printf("encD %ld    motD %ld    encG %ld    motG %ld\n", encodeur_droit, moteur_droit, encodeur_gauche, moteur_gauche);   
 
   //printf("ratio Droit %ld ratio Gauche %ld \n",ratio_droit,ratio_gauche);
 
@@ -92,7 +92,8 @@ static k = 0;
     {
       trajectory_goto_d(&traj, END, 10); 
     }
-    while(traj.last != traj.current);
+    //while(traj.last != traj.current);
+    //trajectory_reinit(&traj);
     patinage = 0;
   }
 

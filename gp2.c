@@ -49,7 +49,7 @@ uint16_t gp2_get_dist(enum gp2_type type)
 
     for(uint8_t i = 0;i < 10;i++)
     {
-      //if(gp2_value<tab[i])
+      if(gp2_value<tab[i])
       dist++;
     }
   //on commence à 5 cm

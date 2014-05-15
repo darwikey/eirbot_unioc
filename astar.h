@@ -50,7 +50,7 @@ struct nodeList
 typedef struct mvStackElement mvStackElement;
 struct mvStackElement
 {
-  float val;
+  double val;
   uint8_t type;
 };
 
@@ -82,6 +82,8 @@ void initObstacle(void);
 void polishing(mvStack *s);
 int8_t astarMv(void);
 void printGraphe(void);
+void putObstacle(uint8_t coor);
+void deleteObstacle(uint8_t coor);
 
 
 uint8_t get_startCoor(void);
