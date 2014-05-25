@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "position_manager.h"
 #include "trajectory_manager.h"
+#include "task_manager.h"
 #include "avoidance.h"
 
 #define DIST  10
@@ -13,10 +14,10 @@
 #define CLOSEDLIST 5
 #define UNIT 20
 #define LENGTH (300 + UNIT)
-#define G_LENGTH 16
+#define G_LENGTH 15
 #define WIDTH (200 + UNIT)
-#define G_WIDTH 11
-#define G_SIZE 176//=G_WIDTH*G_LENGTH
+#define G_WIDTH 10
+#define G_SIZE G_WIDTH*G_LENGTH
 #define OUT 0
 #define STACK_SIZE 20
 #define DRIVE 1
@@ -25,8 +26,8 @@
 typedef struct node node;
 struct node
 {
-  node *parent;//2o
-  uint8_t remainDist;//1o//hcost
+  uint8_t parent;//1o
+  //uint8_t remainDist;//1o//hcost
   uint8_t crossedDist;//1o//gcost
   //int allDist;//0o//fcost
   int8_t type;//1o
@@ -34,23 +35,12 @@ struct node
 };
 
 
-typedef struct nodeListElement nodeListElement;
-struct nodeListElement
-{
-  node n;
-  nodeListElement *next;
-};
 
-typedef struct nodeList nodeList;
-struct nodeList
-{
-  nodeListElement *firstElement;
-};
 
 typedef struct mvStackElement mvStackElement;
 struct mvStackElement
 {
-  double val;
+  float val;
   uint8_t type;
 };
 
@@ -71,8 +61,6 @@ struct coordinate
 
 uint8_t aStarLoop(void);
 uint8_t findDist(node node1, node node2);
-void addElement(nodeList *list, node n);
-void rmElement(nodeList *list, node nd);
 int8_t isVoid(int8_t list);
 void initNeighbors(uint8_t current, uint8_t *neighbors);
 uint8_t findBest(uint8_t openlist);

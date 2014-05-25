@@ -1,3 +1,5 @@
+
+
 #include <aversive.h>
 #include <wait.h>
 #include <time.h>
@@ -17,6 +19,9 @@
 #include "avoidance.h"
 #include "antipatinage.h"
 #include <stdlib.h>
+
+uint16_t stack_begin = 0;
+
 
 #define LARGEUR_ROBOT 30.0
 #define get_fdc 0x16
@@ -72,7 +77,6 @@
 
 
 
-
 #define MAXIME 0
 
 /////////////////////////////////////
@@ -119,6 +123,7 @@ uint8_t team;
 /////////////////////////////////////
 int main(void)
 {
+	//int a = 0;
 	/////////////////////////////////////
 	///TODO//////////////////////////////
 	/////////////////////////////////////
@@ -126,17 +131,12 @@ int main(void)
 	//			verifier les valeurs des gp2
 	//			verifier l'emplacement des obstacles->(printGraphe)
 	//Retirer les obstacles apres 5 secs
-	//Rajouter des gp2 lateraux (vers l'avant du robot) et le code qui les fait marcher
 	//(gp2 Arriere pour autoriser la marche arriere)
 	//
 	//(!!!)Mettre en place les lanceurs de balles
 	//Faire le programme du lanceur de balle
 	//			Deux fonctions lancer balles mammouth jaune et mammouth
 	//Programmer la nouvelle carte Meca
-	//
-	//Faire une gestion des taches (sami)
-	//
-	//Rajouter des fonctions pour gerer les actions assez simples (sami)
 	//
 	//(!!!)Mettre le filet sur le robot principal (ou faire une PMI qui ne fait que lancer le filet)
 	//
@@ -152,7 +152,8 @@ int main(void)
 	uart_init();
 	time_init(128);
 	printf("fdevopen \n");
-	fdevopen(uart0_send,NULL, 0);
+	fdevopen(uart0_send,uart0_recv, 1);
+
 	// Affichage uart: tip -s 9600 -l /dev/ttyS0
 	// prog usb : 
 	// avarice -j /dev/ttyUSB0 --erase --program -f ./main.hex
@@ -177,7 +178,7 @@ int main(void)
 	sbi(PORTE,3);
 	wait_ms(100);
 	
-
+	//printf("stack begin :%d \n", &a);
 	//init des interruptions
 	printf("init i2c \n");
 	scheduler_init();
@@ -208,9 +209,13 @@ int main(void)
 	
 	team = getTeam();
 	while(MAXIME);//boucle anti_maxime
+	// while(1)
+	// {
+	// 	printf("gp2 = %d ",adc_get_value(ADC_REF_AVCC | MUX_ADC0));
+	// }
 
-	//	avoidance_init();
-	//	antipatinage_init();
+	avoidance_init();
+	//antipatinage_init();
 
 	// test_evitement();
 	// while(1);
@@ -220,54 +225,71 @@ int main(void)
 
 	if(team == RED)
 	{
+
+
+
+
+		disableSpinning();	
+
 		findPosition(team);
-		// attend que la tirette soit retirée
-		while (!TIRETTE);
-
-		//position_set_x_cm(&pos,20.0);
-		//position_set_y_cm(&pos,20.0);
 		enableSpinning();
-		//position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(20.0), fxx_from_double(0.0));
-
-		printf("begin match \n");	    
-
-		printf("start pos: x %lf pos y %lf \n",position_get_x_cm(&pos),position_get_y_cm(&pos));
-
-	      	// throwSpears(RED);	
-	      	// returnFire(R1);
-	      	// returnFire(R3);
-	      	// returnFire(R2);	
-
-	      	// takeFruitRed(team);
-		putPaint(team);
 
 
-		findPosition(REDPAINT);
+		trajectory_goto_d(&traj, END, 20);	
+		while(!trajectory_is_ended(&traj));
+	//
+	// trajectory_goto_a(&traj, END, 90);
+	// 
+	// trajectory_goto_a(&traj, END, 0);	
+	// while(!trajectory_is_ended(&traj));
 
 
-		returnFire(Y1);
-		throwSpears(YELLOW);
-		putFruit(team);
 
-	      	// disableSpinning();
-	      	// findPosition(YELLOW);
-	      	// enableSpinning();	      	
-
-		returnFire(Y3);
-		takeFruitYellow(team);
-
-		putFruit(team);
-		returnFire(Y2);
+		initTaskManager(&tkm);
 
 
+
+		//addTask(&tkm, &returnFire, LOW_PRIORITY, R1);
+		addTask(&tkm, &throwSpears, LOW_PRIORITY, RED);
+		addTask(&tkm, &returnFire, LOW_PRIORITY, R3);
+		addTask(&tkm, &returnFire, HIGH_PRIORITY, R2);
+		addTask(&tkm, &takeFruitRed, HIGH_PRIORITY, team);
+		addTask(&tkm, &putPaint, HIGH_PRIORITY, team);
+
+		addTask(&tkm, &findPosition, HIGH_PRIORITY, REDPAINT);
+		addTask(&tkm, &returnFire, HIGH_PRIORITY, Y1);
+		addTask(&tkm, &throwSpears, HIGH_PRIORITY, YELLOW);
+		addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
+
+		addTask(&tkm, &findPosition, HIGH_PRIORITY, YELLOW);
+
+		addTask(&tkm, &returnFire, HIGH_PRIORITY, Y3);
+		addTask(&tkm, &takeFruitYellow, HIGH_PRIORITY, team);
+		addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
+		addTask(&tkm, &returnFire, HIGH_PRIORITY, Y2);
+		
+
+		while (TIRETTE);
+		printf("begin match \n");
+
+
+		avoidance_init();
+
+
+		while(doNextTask(&tkm));
+		printf("finish \n");
 
 
 	}
 	else // Team jaune
 	{
 		findPosition(team);
+
+		trajectory_goto_d(&traj, END, 20);	
+		while(!trajectory_is_ended(&traj));
+
 		// attend que la tirette soit retirée
-		while (!TIRETTE);
+		while (TIRETTE);
 		//position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(280.0), fxx_from_double(0.0));
 		enableSpinning();
 
@@ -345,47 +367,35 @@ uint8_t mecaCom(uint8_t ordre)
 
 void test_evitement(void)
 {
-	disableSpinning();	
 
+	enableSpinning();
 	findPosition(team);
+	disableSpinning();
 
-	enableSpinning();	
-	// trajectory_goto_a(&traj, END, 90);
-	// trajectory_goto_d(&traj, END, -90);	
-	// while(!trajectory_is_ended(&traj));
-	// trajectory_goto_a(&traj, END, 0);	
-	// while(!trajectory_is_ended(&traj));
-	
-	initTaskManager(&tkm);
-	addTask(&tkm, &throwSpears, LOW_PRIORITY, RED);
-	addTask(&tkm, &returnFire, LOW_PRIORITY, R1);
-	addTask(&tkm, &returnFire, LOW_PRIORITY, R3);
-	addTask(&tkm, &returnFire, HIGH_PRIORITY, R2);
-	addTask(&tkm, &takeFruitRed, HIGH_PRIORITY, team);
-	addTask(&tkm, &putPaint, HIGH_PRIORITY, team);
+	asserv_set_vitesse_normal(&asserv);
 
-	addTask(&tkm, &findPosition, HIGH_PRIORITY, REDPAINT);
-	addTask(&tkm, &returnFire, HIGH_PRIORITY, Y1);
-	addTask(&tkm, &throwSpears, HIGH_PRIORITY, YELLOW);
-	addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
+	double eps = 0;
+	set_startCoor(position_get_coor_eps(&pos, &eps));
+	printf("start pos: %d eps %lf \n",position_get_coor_eps(&pos, &eps),eps);
 
-	//addTask(&tkm, &findPosition, HIGH_PRIORITY, YELLOW);
+	set_goalCoor(G_LENGTH * 8 + 13);
 
-	addTask(&tkm, &returnFire, HIGH_PRIORITY, Y3);
-	addTask(&tkm, &takeFruitYellow, HIGH_PRIORITY, team);
-	addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
-	addTask(&tkm, &returnFire, HIGH_PRIORITY, Y2);
-	while(doNext(&tkm));
+	if (eps > EPSILON)
+	{
+		go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
+	}    
 
+	while(!astarMv());
+	// throwSpears(RED);
 
-
+	printf("succeed");
 
 		// trajectory_goto_d(&traj, END, 10);
-		// while(!trajectory_is_ended(&traj));
+		// while(!traject+œœory_is_ended(&traj));
 		// printf("astar test \n");	    
 		// set_startCoor(G_LENGTH * 2 + 2);
 		// set_goalCoor(G_LENGTH * 8 + 13);
-		// while(!astarMv());
+		// while(!astarMv() && !actionIsFailed());
 
 		// trajectory_goto_d(&traj, END, -100);
 		// while(!trajectory_is_ended(&traj));
@@ -490,12 +500,12 @@ uint8_t findPosition(uint8_t type)
 		position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(280.0), fxx_from_double(0.0));
 		asserv_stop(&asserv);
 
-		asserv_set_vitesse_normal(&asserv);
+		asserv_set_vitesse_fast(&asserv);
 	}
-	else if(REDPAINT)
+	else if(type == REDPAINT)
 	{
 
-		//asserv_set_vitesse_normal(&asserv);
+		// asserv_set_vitesse_low(&asserv);
 		double eps = 0;
 		set_startCoor(position_get_coor_eps(&pos, &eps));
 		printf("start pos: %d eps %lf \n",position_get_coor_eps(&pos, &eps),eps);
@@ -506,13 +516,13 @@ uint8_t findPosition(uint8_t type)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		}    
+		while(!astarMv() && !actionIsFailed());
+		if(actionIsFailed())return DONE;
 
-
-		while(!astarMv());
+		asserv_set_vitesse_normal(&asserv);
 
 		trajectory_goto_a(&traj, END, 90);
-		while(!trajectory_is_ended(&traj))
-			trajectory_goto_d(&traj, END, -200);
+		trajectory_goto_d(&traj, END, -200);
 		while(!trajectory_is_ended(&traj))
 		{
 			if(REPOSITIONING)
@@ -521,8 +531,11 @@ uint8_t findPosition(uint8_t type)
 				asserv_stop(&asserv);
 			}
 		}
+		if(actionIsFailed())return DONE;
+
 		trajectory_goto_d(&traj, END, 20 - DIST_CENTRE);
 		while(!trajectory_is_ended(&traj));
+		if(actionIsFailed())return DONE;
 		cli();
 
 		printf("pos asserv a : %lu %lu \n",U_ASSERV_ANGLE,U_PM_ANGLE);
@@ -531,12 +544,12 @@ uint8_t findPosition(uint8_t type)
 		asserv_stop(&asserv);
 
 
-
+		asserv_set_vitesse_normal(&asserv);
 	}
-	else if(YELLOWPAINT)
+	else if(type == YELLOWPAINT)
 	{
 
-		//asserv_set_vitesse_normal(&asserv);
+
 		double eps = 0;
 		set_startCoor(position_get_coor_eps(&pos, &eps));
 		printf("start pos: %d eps %lf \n",position_get_coor_eps(&pos, &eps),eps);
@@ -549,11 +562,12 @@ uint8_t findPosition(uint8_t type)
 		}    
 
 
-		while(!astarMv());
+		while(!astarMv() && !actionIsFailed());
+		if(actionIsFailed())return DONE;
 
+		asserv_set_vitesse_low(&asserv);
 		trajectory_goto_a(&traj, END, -90);
-		while(!trajectory_is_ended(&traj))
-			trajectory_goto_d(&traj, END, -200);
+		trajectory_goto_d(&traj, END, -200);
 		while(!trajectory_is_ended(&traj))
 		{
 			if(REPOSITIONING)
@@ -562,14 +576,17 @@ uint8_t findPosition(uint8_t type)
 				asserv_stop(&asserv);
 			}
 		}
+		if(actionIsFailed())return DONE;
 		trajectory_goto_d(&traj, END, 20 - DIST_CENTRE);
 		while(!trajectory_is_ended(&traj));
+		if(actionIsFailed())return DONE;
 		cli();
 
 		printf("pos asserv a : %lu %lu \n",U_ASSERV_ANGLE,U_PM_ANGLE);
 
 		position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(160.0), fxx_from_double(-90.0));
 		asserv_stop(&asserv);
+		asserv_set_vitesse_normal(&asserv);
 	}
 		//printf("pos asserv a : %lu %lu \n",U_ASSERV_ANGLE,U_PM_ANGLE);
 
@@ -600,35 +617,32 @@ uint8_t takeFruitRed(uint8_t type)
 	}    
 
 
-	while(!astarMv());
+	while(!astarMv() && !actionIsFailed());
+	if(actionIsFailed())return FAILED;
 
 	printf("take the fruit");
 	trajectory_goto_a(&traj, END, -90);
-	while(!trajectory_is_ended(&traj));
-	wait_ms(200);
-
 	trajectory_goto_d(&traj, END,10);
 	while(!trajectory_is_ended(&traj));
+	if(actionIsFailed())return FAILED;
 
 	mecaCom(TIROIR_OUVERT);
 	mecaCom(PEIGNE_OUVERT);
 
 	trajectory_goto_a(&traj, END, 0);
-	while(!trajectory_is_ended(&traj));
-	wait_ms(200);
 	trajectory_goto_d(&traj, END,60);
 	trajectory_goto_a(&traj, END,45);
 	trajectory_goto_d(&traj, END,10 * 1.414);
-		// trajectory_goto_a(&traj, END, 0);
-		// trajectory_goto_d(&traj, END,10);
+	// trajectory_goto_a(&traj, END, 0);
+	// trajectory_goto_d(&traj, END,10);
 	trajectory_goto_a(&traj, END, 90);
 	trajectory_goto_d(&traj, END,60);
-	while(!trajectory_is_ended(&traj));
-	mecaCom(PEIGNE_FERMER);
-
 	trajectory_goto_a(&traj, END, 180);
 	trajectory_goto_d(&traj, END,10);
 	while(!trajectory_is_ended(&traj));
+	mecaCom(PEIGNE_FERMER);
+	if(actionIsFailed())return FAILED;
+
 	return DONE;
 }
 
@@ -646,9 +660,8 @@ uint8_t takeFruitYellow(uint8_t type)
 	}
 
 
-
-	while(!astarMv());
-
+	while(!astarMv() && !actionIsFailed());
+	if(actionIsFailed())return FAILED;
 
 	printf("take the fruit");
 
@@ -656,23 +669,11 @@ uint8_t takeFruitYellow(uint8_t type)
 	mecaCom(TIROIR_OUVERT);
 
 	trajectory_goto_a(&traj, END, 0);
-	while(!trajectory_is_ended(&traj));
-
 	trajectory_goto_d(&traj, END, 8);
-	while(!trajectory_is_ended(&traj));
-
 	trajectory_goto_a(&traj, END, 90);
-	while(!trajectory_is_ended(&traj));
-
 	trajectory_goto_d(&traj, END, 80);
-	while(!trajectory_is_ended(&traj));      
-
-
 	trajectory_goto_a(&traj, END, 135);
-	while(!trajectory_is_ended(&traj));
-
 	trajectory_goto_d(&traj, END, 15 * 1.414);
-	while(!trajectory_is_ended(&traj));
 
 		// trajectory_goto_a(&traj, END, 90);
 		// while(!trajectory_is_ended(&traj));
@@ -682,18 +683,15 @@ uint8_t takeFruitYellow(uint8_t type)
 
 
 	trajectory_goto_a(&traj, END, 180);
-	while(!trajectory_is_ended(&traj));
-
 	trajectory_goto_d(&traj, END, 55);
-	while(!trajectory_is_ended(&traj));
-
 	trajectory_goto_a(&traj, END, -90);
-	while(!trajectory_is_ended(&traj));
-
 	trajectory_goto_d(&traj, END, 15);
 	while(!trajectory_is_ended(&traj));
 
 	mecaCom(PEIGNE_FERMER);
+	if(actionIsFailed())return FAILED;
+
+
 	return DONE;
 }
 
@@ -707,35 +705,45 @@ uint8_t putFruit(uint8_t side)
 
 	if(team == RED)
 	{
-		set_goalCoor(G_LENGTH * 3 + 8);
+		set_goalCoor(G_LENGTH * 3 + 11);
 
 		if (eps > EPSILON)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		} 
-		while(!astarMv());
+		while(!astarMv() && !actionIsFailed());
+		if(actionIsFailed())return FAILED;
 
-		trajectory_goto_a(&traj, END, 180);      	     
-		trajectory_goto_d(&traj, END, 15);
+		trajectory_goto_a(&traj, END, 0);      	     
+		trajectory_goto_d(&traj, END, -40);
+		while(!trajectory_is_ended(&traj));
+		
+		//se recaller?
+
+
+		throwSpears(YELLOW);
+		trajectory_goto_d(&traj, END, -3);
 		if(k)
 		{
 			trajectory_goto_a(&traj, END, -90);	
 		}
 		else
 		{
-			trajectory_goto_a(&traj, END, -86);
+			trajectory_goto_a(&traj, END, -90);
 		}
 
-		trajectory_goto_d(&traj, END, -40);
+		//trajectory_goto_d(&traj, END, -40);
+
 		while(!trajectory_is_ended(&traj));
+		//if(actionIsFailed())return FAILED;
 
 		mecaCom(TIROIR_DEVERSER);
 		wait_ms(2000);
 
 		mecaCom(TIROIR_FERMER);
-		trajectory_goto_d(&traj, END, -60);
-			//trajectory_goto_a(&traj, END, 0);
-			//trajectory_goto_d(&traj, END,15);
+		//trajectory_goto_d(&traj, END, -60);
+		//trajectory_goto_a(&traj, END, 0);
+		//trajectory_goto_d(&traj, END,15);
 		while(!trajectory_is_ended(&traj));
 	}
 	else
@@ -748,43 +756,48 @@ uint8_t putFruit(uint8_t side)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		}    
-		while(!astarMv());
+		while(!astarMv() && !actionIsFailed());
+		if(actionIsFailed())return FAILED;
 
-		trajectory_goto_a(&traj, END, 180);
+		trajectory_goto_a(&traj, END, 0);      	     
+		trajectory_goto_d(&traj, END, -40);
+		while(!trajectory_is_ended(&traj));
+		throwSpears(YELLOW);
+		trajectory_goto_d(&traj, END, -3);
 
 		if(k)
 		{
-			trajectory_goto_d(&traj, END, 4);
+			
 			trajectory_goto_a(&traj, END, -90);
 
 		}
 		else
 		{
-			trajectory_goto_a(&traj, END, -86);
+			trajectory_goto_a(&traj, END, -90);
 		}
 
-		trajectory_goto_d(&traj, END, 60);
 		while(!trajectory_is_ended(&traj));
+
+		if(actionIsFailed())return FAILED;
 
 		mecaCom(TIROIR_DEVERSER);
 		wait_ms(2000);
 
 		mecaCom(TIROIR_FERMER);
 
-		trajectory_goto_d(&traj, END, 60);
-		if(k)
-		{
-			trajectory_goto_a(&traj, END, 0);
-			trajectory_goto_d(&traj, END, 12);
-		}
-		else
-		{	
-			trajectory_goto_a(&traj, END, 90);
+		// if(k)
+		// {
+		// 	trajectory_goto_a(&traj, END, 0);
+		// 	trajectory_goto_d(&traj, END, 12);
+		// }
+		// else
+		// {	
+		// 	trajectory_goto_a(&traj, END, 90);
 
-			k = 1;
-				//trajectory_goto_d(&traj, END, 0);
-		}
-		while(!trajectory_is_ended(&traj));
+		// 	k = 1;
+		// 		//trajectory_goto_d(&traj, END, 0);
+		// }
+		// while(!trajectory_is_ended(&traj));
 
 
 	}
@@ -802,17 +815,19 @@ uint8_t putPaint(uint8_t side)
 	{
 		go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 	}    
-	while(!astarMv());
+	while(!astarMv() && !actionIsFailed());
+
+	if(actionIsFailed())return FAILED;
 
 	printf("angle %lf \n",position_get_angle_deg(&pos));
 
 	trajectory_goto_a(&traj, END, 0);
-	while(!trajectory_is_ended(&traj));
-
 	printf("angle %lf \n",position_get_angle_deg(&pos));
-
 	trajectory_goto_d(&traj, END, -100);
 	while(!trajectory_is_ended(&traj));			
+
+	if(actionIsFailed())return FAILED;
+
 	return DONE;
 }
 
@@ -824,14 +839,15 @@ uint8_t calibrateGP2(void)
 	////////////////////////////////////////
 	//Placer le robot face a un mur
 	////////////////////////////////////////
-	trajectory_goto_d(&traj, END, -15);
-	while(!trajectory_is_ended(&traj));
-	for (int i = 0; i < 15; ++i)
+	//trajectory_goto_d(&traj, END, -10);
+	//while(!trajectory_is_ended(&traj));
+	for (int i = 0; i < 25; ++i)
 	{
 		wait_ms(500);
-		printf("gp2 right %d gp2 left %d \n",adc_get_value(ADC_REF_AVCC | MUX_ADC0),adc_get_value(ADC_REF_AVCC | MUX_ADC1));
+		printf("dist = %d cm",i*5);
+		printf("gp2 right %d gp2 left %d gp2 middle %d \n",adc_get_value(ADC_REF_AVCC | MUX_ADC0),adc_get_value(ADC_REF_AVCC | MUX_ADC1),adc_get_value(ADC_REF_AVCC | MUX_ADC2));
 
-		trajectory_goto_d(&traj, END, -10);
+		trajectory_goto_d(&traj, END, -5);
 		while(!trajectory_is_ended(&traj));
 	}
 	return DONE;
@@ -852,6 +868,99 @@ uint8_t getTeam(void)
 	//a faire	
 uint8_t throwSpears(uint8_t side)
 {
+
+	if(side == RED)
+	{
+		if(team == RED)
+		{
+			double eps = 0;
+			set_startCoor(position_get_coor_eps(&pos,&eps));
+
+			set_goalCoor(G_LENGTH * 3 + 4);
+
+			if (eps > EPSILON)
+			{
+				go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
+			}    
+			while(!astarMv());
+
+			trajectory_goto_a(&traj, END, -180);      	     
+			trajectory_goto_d(&traj, END, 16.8);
+			while(!trajectory_is_ended(&traj));
+			mecaCom(LANCE_BALLE_AV);
+			trajectory_goto_d(&traj, END, -16.8);
+			while(!trajectory_is_ended(&traj));
+			
+
+
+		}
+		else
+		{
+			// double eps = 0;
+			// set_startCoor(position_get_coor_eps(&pos,&eps));
+
+			// set_goalCoor(G_LENGTH * 3 + 4);
+
+			// if (eps > EPSILON)
+			// {
+			// 	go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
+			// }    
+			// while(!astarMv() && !actionIsFailed());
+
+			// trajectory_goto_a(&traj,END,0);
+			// trajectory_goto_d(&traj, END, -16.8);
+			// while(!trajectory_is_ended(&traj));
+			mecaCom(LANCE_BALLE_AR);
+			// trajectory_goto_d(&traj, END, 16.8);
+			// while(!trajectory_is_ended(&traj));
+		}
+	}
+	else
+	{
+		if(team == RED)
+		{
+			// double eps = 0;
+			// set_startCoor(position_get_coor_eps(&pos,&eps));
+
+			// set_goalCoor(G_LENGTH * 3 + 11);
+
+			// if (eps > EPSILON)
+			// {
+			// 	go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
+			// }    
+			// while(!astarMv());
+
+			// trajectory_goto_a(&traj, END, 0);      	     
+			// trajectory_goto_d(&traj, END, -16.8);
+			// while(!trajectory_is_ended(&traj));
+			mecaCom(LANCE_BALLE_AR);
+			// trajectory_goto_d(&traj, END, 16.8);
+			// while(!trajectory_is_ended(&traj));
+			
+
+
+		}
+		else
+		{
+			double eps = 0;
+			set_startCoor(position_get_coor_eps(&pos,&eps));
+
+			set_goalCoor(G_LENGTH * 3 + 11);
+
+			if (eps > EPSILON)
+			{
+				go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
+			}    
+			while(!astarMv() && !actionIsFailed());
+
+			trajectory_goto_a(&traj,END,180);
+			trajectory_goto_d(&traj, END, 16.8);
+			while(!trajectory_is_ended(&traj));
+			mecaCom(LANCE_BALLE_AV);
+			trajectory_goto_d(&traj, END, -16.8);
+			while(!trajectory_is_ended(&traj));
+		}	
+	}
 	return DONE;
 }
 
@@ -865,6 +974,9 @@ uint8_t returnFire(uint8_t fireNb)
 			avoidFire(i);
 		}
 	}
+
+	uint16_t stackend = 0;
+	printf("stack %d \n",&stackend - &stack_begin);
 
 	if(fireNb == R1)
 	{
@@ -889,7 +1001,9 @@ uint8_t returnFire(uint8_t fireNb)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		}    
-		while(!astarMv());
+		while(!astarMv() && !actionIsFailed());
+
+		if(actionIsFailed())return FAILED;
 
 			//test if it succeed
 		eps = 0;
@@ -912,8 +1026,9 @@ uint8_t returnFire(uint8_t fireNb)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		}
-		while(!astarMv());
+		while(!astarMv() && !actionIsFailed());
 
+		if(actionIsFailed())return FAILED;
 
 
 
@@ -940,7 +1055,8 @@ uint8_t returnFire(uint8_t fireNb)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		}    
-		while(!astarMv());
+		while(!astarMv() && !actionIsFailed());
+		if(actionIsFailed())return FAILED;
 
 			//test if it succeed
 		eps = 0;
@@ -963,8 +1079,9 @@ uint8_t returnFire(uint8_t fireNb)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		}
-		while(!astarMv());
+		while(!astarMv() && !actionIsFailed());
 
+		if(actionIsFailed())return FAILED;
 
 
 	}
@@ -990,7 +1107,9 @@ uint8_t returnFire(uint8_t fireNb)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		}    
-		while(!astarMv());
+		while(!astarMv() && !actionIsFailed());
+
+		if(actionIsFailed())return FAILED;
 
 			//test if it succeed
 		eps = 0;
@@ -1013,8 +1132,8 @@ uint8_t returnFire(uint8_t fireNb)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		}
-		while(!astarMv());
-
+		while(!astarMv() && !actionIsFailed());
+		if(actionIsFailed())return FAILED;
 
 
 	}
@@ -1040,8 +1159,8 @@ uint8_t returnFire(uint8_t fireNb)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		}    
-		while(!astarMv());
-
+		while(!astarMv() && !actionIsFailed());
+		if(actionIsFailed())return FAILED;
 			//test if it succeed
 		eps = 0;
 
@@ -1063,9 +1182,9 @@ uint8_t returnFire(uint8_t fireNb)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		}
-		while(!astarMv());
+		while(!astarMv() && !actionIsFailed());
 
-
+		if(actionIsFailed())return FAILED;
 
 
 	}
@@ -1091,8 +1210,9 @@ uint8_t returnFire(uint8_t fireNb)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		}    
-		while(!astarMv());
+		while(!astarMv() && !actionIsFailed());
 
+		if(actionIsFailed())return FAILED;
 			//test if it succeed
 		eps = 0;
 
@@ -1114,8 +1234,8 @@ uint8_t returnFire(uint8_t fireNb)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		}
-		while(!astarMv());
-
+		while(!astarMv() && !actionIsFailed());
+		if(actionIsFailed())return FAILED;
 
 
 
@@ -1142,7 +1262,8 @@ uint8_t returnFire(uint8_t fireNb)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		}    
-		while(!astarMv());
+		while(!astarMv() && !actionIsFailed());
+		if(actionIsFailed())return FAILED;
 
 			//test if it succeed
 		eps = 0;
@@ -1164,7 +1285,8 @@ uint8_t returnFire(uint8_t fireNb)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
 		}
-		while(!astarMv());
+		while(!astarMv() && !actionIsFailed());
+		if(actionIsFailed())return FAILED;
 	}
 	else
 	{
@@ -1172,7 +1294,7 @@ uint8_t returnFire(uint8_t fireNb)
 	}
 
 		//if succeed
-		//tab[fireNb] += DONE; 
+	tab[fireNb] += DONE; 
 
 	for(uint8_t i = 1;i < 7;i++)
 	{

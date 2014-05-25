@@ -11,6 +11,9 @@
 #define TIROIR_DEVERSER 3
 #define PEIGNE_OUVERT 4
 #define PEIGNE_FERMER 5
+#define LANCE_BALLE_AV 6
+#define LANCE_BALLE_AR 7
+
 
 //les fonctions
 // /!\ne pas associer des actions à 0x01 et 0x02 car c'est les même valeurs que mecaReady et mecaBusy et ça peut poser des problèmes un peu compliqué à expliquer

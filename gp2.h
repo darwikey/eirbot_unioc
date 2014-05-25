@@ -8,12 +8,12 @@
 
 enum gp2_type
   {
-    GP2_RIGHT,GP2_LEFT
+    GP2_RIGHT,GP2_LEFT,GP2_MIDDLE
   };
 
 // Donne la distance en cm de l'objet capté enfonction de la valeur de l'adc
 uint16_t gp2_get_dist(enum gp2_type);
 
-int gp2_get_coor_obstacle(enum gp2_type type, uint16_t distance_max);
+uint8_t gp2_get_coor_obstacle(enum gp2_type type, uint16_t distance_max);
 
 #endif//GP2_H

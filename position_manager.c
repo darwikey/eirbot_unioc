@@ -6,24 +6,24 @@
 #include "astar.h"
 #include "asserv_manager.h"
 
-int32_t offset_x = 0;
-int32_t offset_y = 0;
+// int32_t offset_x = 0;
+// int32_t offset_y = 0;
 int32_t offset_a = 0;
 
 
 // EIRBUG
-void position_abs(position_manager_t* pm, int16_t* x, int16_t* y, int16_t* a) {
-	*x = pm->acs_x_begin + fxx_to_double(position_get_x_cm(pm));
-  *y = pm->acs_y_begin - fxx_to_double(position_get_y_cm(pm));
-  *a = pm->acs_angle_begin + fxx_to_double(position_get_angle_mod2pi_deg(pm));	
-}
+// void position_abs(position_manager_t* pm, int16_t* x, int16_t* y, int16_t* a) {
+// 	*x = pm->acs_x_begin + fxx_to_double(position_get_x_cm(pm));
+//   *y = pm->acs_y_begin - fxx_to_double(position_get_y_cm(pm));
+//   *a = pm->acs_angle_begin + fxx_to_double(position_get_angle_mod2pi_deg(pm));	
+// }
 
 
-void position_begin_set(position_manager_t* pm, int16_t x, int16_t y, int16_t a) {
-  pm->acs_x_begin = x;
-  pm->acs_y_begin = y;
-  pm->acs_angle_begin = a;
-}
+// void position_begin_set(position_manager_t* pm, int16_t x, int16_t y, int16_t a) {
+//   pm->acs_x_begin = x;
+//   pm->acs_y_begin = y;
+//   pm->acs_angle_begin = a;
+// }
 
 ////
 
@@ -75,15 +75,15 @@ void position_set_xya_cm_deg(position_manager_t *pm,fxx x,fxx y, fxx a)
   int32_t angle_fpga = U_PM_ANGLE;
   while (angle_fpga == 0 || angle_fpga < - 50000 || angle_fpga > 50000)
   {
-    printf("%d \n",- (1<<20));
-    printf("angle fpga %ld cal_sec %ld \n",angle_fpga,pm->cal_sec);
+    // printf("%d \n",- (1<<20));
+    // printf("angle fpga %ld cal_sec %ld \n",angle_fpga,pm->cal_sec);
     angle_fpga = U_PM_ANGLE;
   }
 
   offset_a = angle_fpga - pm->cal_sec;
 
-  printf("angle fpga %ld cal_sec %ld",angle_fpga,pm->cal_sec);
-  printf("angle offset %ld \n", offset_a);
+  // printf("angle fpga %ld cal_sec %ld",angle_fpga,pm->cal_sec);
+  // printf("angle offset %ld \n", offset_a);
   /*Ne marche plus avec notre fpga (les flags non supporté?) 
     U_PM_ANGLE = pm->cal_sec;
   U_PM_FLAGS = U_PM_FLAGS_SET_REGISTERS;
@@ -98,8 +98,8 @@ void position_set_xya_cm_deg(position_manager_t *pm,fxx x,fxx y, fxx a)
 }
 void position_update_low_level(void * arg)
 {
-  static uint8_t tmp = 0;
-  tmp = (tmp + 1)%20;
+  // static uint8_t tmp = 0;
+  // tmp = (tmp + 1)%20;
   //_SFR_MEM8(0x8000) = tmp>10;
   //ancienne led, devenu obslete car codeur
 
@@ -304,17 +304,17 @@ int32_t position_rad2imp(position_manager_t *pm,fxx rad)
 }
 
 
-void position_set_x_cm(position_manager_t *pm,double x_cm)
-{
-  fxx x = fxx_from_double(x_cm); 
-  offset_x = U_PM_X - fxx_div(x,pm->c_imp2cm) ;
-}
+// void position_set_x_cm(position_manager_t *pm,double x_cm)
+// {
+//   fxx x = fxx_from_double(x_cm); 
+//   offset_x = U_PM_X - fxx_div(x,pm->c_imp2cm) ;
+// }
 
-void position_set_y_cm(position_manager_t *pm,double y_cm)
-{
-  fxx y = fxx_from_double(y_cm);
-  offset_y =  U_PM_Y - fxx_div(y,pm->c_imp2cm);
-}
+// void position_set_y_cm(position_manager_t *pm,double y_cm)
+// {
+//   fxx y = fxx_from_double(y_cm);
+//   offset_y =  U_PM_Y - fxx_div(y,pm->c_imp2cm);
+// }
 
 
 void position_set_angle_deg(position_manager_t *pm,double deg)

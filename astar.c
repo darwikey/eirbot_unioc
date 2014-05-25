@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 extern trajectory_manager_t traj;
-
+//extern uint16_t stack_begin;
 //graphe où sera charge la table et ses obstacles
 node graphe[G_SIZE] = { 0 };
 uint8_t startCoor;
@@ -16,9 +16,17 @@ uint8_t aStarLoop()
   uint8_t i;
   uint8_t neighbors[8];
   graphe[startCoor].type = OPENLIST; //OPENLIST is list of node we have to analysed//list is a type 
-  graphe[startCoor].remainDist = findDist(graphe[startCoor], graphe[goalCoor]);
+  //graphe[startCoor].remainDist = findDist(graphe[startCoor], graphe[goalCoor]);
   uint8_t current = startCoor;
-  
+
+  // uint16_t stackend = 0;
+  // printf("stack %d \n",&stackend);
+  if(startCoor == goalCoor)
+  {
+    return 1;
+  }
+
+
   while (graphe[goalCoor].type != CLOSEDLIST)//closed list is nodes which are already analysed
   {
       //init neighbors
@@ -32,14 +40,14 @@ uint8_t aStarLoop()
 		  //update the node if it's already in the openlist
         if (graphe[neighbors[i]].crossedDist > findDist(graphe[neighbors[i]], graphe[current]) + graphe[current].crossedDist)
         {
-          graphe[neighbors[i]].parent = &graphe[graphe[current].coor];
+          graphe[neighbors[i]].parent = graphe[current].coor;
           graphe[neighbors[i]].crossedDist = findDist(graphe[neighbors[i]], graphe[current]) + graphe[current].crossedDist;
         }
       }
 	      else//add it
         {
-          graphe[neighbors[i]].parent = &graphe[graphe[current].coor];
-          graphe[neighbors[i]].remainDist = findDist(graphe[neighbors[i]], graphe[goalCoor]);
+          graphe[neighbors[i]].parent = graphe[current].coor;
+        //  graphe[neighbors[i]].remainDist = findDist(graphe[neighbors[i]], graphe[goalCoor]);
           graphe[neighbors[i]].crossedDist = findDist(graphe[neighbors[i]], graphe[current]) + graphe[current].crossedDist;
           graphe[neighbors[i]].type = OPENLIST;
         }
@@ -55,21 +63,23 @@ uint8_t aStarLoop()
       //printf("(%d,%d) \n", coor.x, coor.y);
       //put the analysed node in the closedList
    graphe[current].type = CLOSEDLIST;
+
  }
- if (graphe[goalCoor].parent == NULL)
+ if (graphe[goalCoor].parent == 0)
  {
   printf("path not found");
   return 0;
 }
 else
 {
+
       //reconstruct the path
   printf("path: \n");
   while (current != startCoor)
   {
    coor = getCoor(graphe[current]);
    printf("(%d,%d), ", coor.x, coor.y);
-   current = graphe[current].parent->coor;
+   current = graphe[graphe[current].parent].coor;
  }
  coor = getCoor(graphe[startCoor]);
  printf("(%d,%d), ", coor.x, coor.y);
@@ -92,56 +102,7 @@ uint8_t findDist(node node1, node node2)
   return dist;
 }
 
-void addElement(nodeList *list, node n)
-{
-  nodeListElement *new = malloc(sizeof(*new));
 
-  nodeListElement   *current = list->firstElement;
-  if (list->firstElement == NULL)
-  {
-    list->firstElement = new;
-    new->next = NULL;
-    new->n = n;
-  }
-  else
-  {
-    while (current->next != NULL)
-    {
-     current = current->next;
-   }
-   current->next = new;
-   new->next = NULL;
-   new->n = n;
- }
-}
-
-void rmElement(nodeList *list, node nd)
-{
-  nodeListElement *current = list->firstElement;
-  nodeListElement *deleted = NULL;
-  if (nd.coor == current->n.coor)
-  {
-    deleted = current;
-    list->firstElement = current->next;
-  }
-  else
-  {
-    while (current->next != NULL)
-    {
-     if (nd.coor == current->next->n.coor)
-     {
-       deleted = current->next;
-       current->next = current->next->next;
-       break;
-     }
-     current = current->next;
-   }
- }
- if (deleted != NULL)
- {
-  free(deleted);
-}
-}
 
 
 int8_t isVoid(int8_t list)
@@ -211,9 +172,9 @@ uint8_t findBest(uint8_t openlist)
   {
     if (graphe[i].type == openlist)
     {
-     if (graphe[i].crossedDist + graphe[i].remainDist < max)
+     if (graphe[i].crossedDist + findDist(graphe[i], graphe[goalCoor]) < max)
      {
-       max = graphe[i].crossedDist + graphe[i].remainDist;
+       max = graphe[i].crossedDist + findDist(graphe[i], graphe[goalCoor]);;
        best = graphe[i].coor;
      }
 
@@ -239,12 +200,12 @@ void initObstacle()
   for(i = 0; i < G_LENGTH;i++)
   {
     graphe[i].type = OBSTACLE; 
-    graphe[(G_WIDTH-1)*G_LENGTH + i].type = OBSTACLE;  
+    //graphe[(G_WIDTH-1)*G_LENGTH + i].type = OBSTACLE;  
   }
   for(i=0;i<G_WIDTH;i++) 
   { 
     graphe[i*G_LENGTH].type = OBSTACLE;
-    graphe[i*G_LENGTH + G_LENGTH-1].type = OBSTACLE;
+    //graphe[i*G_LENGTH + G_LENGTH-1].type = OBSTACLE;
   } 
   for(i=2;i<7;i++)
   {
@@ -290,15 +251,15 @@ void polishing(mvStack *s)
   mvStackElement r = {0,0};
   while (current.coor != startCoor)
   {
-      //printf("polishing %d %d \n",current.coor,type);
-      if(current.parent->coor == current.coor - 1*G_LENGTH - 1)//0
+    printf("polishing %d %d \n",current.coor,type);
+      if(current.parent == current.coor - 1*G_LENGTH - 1)//0
 	//012
 	//3x4
 	//567
       {
        if (type == 0)
        {
-         e.val += 1.41421356f;
+         e.val += 1.414213562;
 	      e.type = DRIVE;//1 = DRIVE
 	    }
      else
@@ -311,14 +272,14 @@ void polishing(mvStack *s)
 
 	      type = 0;
 	      e.type = DRIVE;
-	      e.val = 1.41421356f;
+	      e.val = 1.414213562;
 	    }
    }
-      else if(current.parent->coor == current.coor - 1*G_LENGTH)//1
+      else if(current.parent == current.coor - 1*G_LENGTH)//1
       {	  
        if (type == 1)
        {
-         e.val++;
+         e.val+=1;
 	      e.type = DRIVE;//1 = DRIVE
 	    }
      else
@@ -334,11 +295,11 @@ void polishing(mvStack *s)
 	      e.val = 1;
 	    }
    }
-      else if(current.parent->coor == current.coor - 1*G_LENGTH + 1)//2
+      else if(current.parent == current.coor - 1*G_LENGTH + 1)//2
       {
        if (type == 2)
        {
-         e.val += 1.41421356f;
+         e.val += 1.414213562;
 	      e.type = DRIVE;//1 = DRIVE
 	    }
      else
@@ -351,14 +312,14 @@ void polishing(mvStack *s)
 
 	      type = 2;
 	      e.type = DRIVE;
-	      e.val = 1.41421356f;
+	      e.val = 1.414213562;
 	    }
    }
-      else if(current.parent->coor == current.coor - 1)//3
+      else if(current.parent == current.coor - 1)//3
       {	 
        if (type == 3)
        {
-         e.val ++;
+         e.val += 1;
 	      e.type = DRIVE;//1 = DRIVE
 	    }
      else
@@ -374,11 +335,11 @@ void polishing(mvStack *s)
 	      e.val = 1;
 	    }
    }
-      else if(current.parent->coor == current.coor + 1)//4
+      else if(current.parent == current.coor + 1)//4
       {	 
        if (type == 4)
        {
-         e.val++;
+         e.val+=1;
 	      e.type = DRIVE;//1 = DRIVE
 	    }
      else
@@ -394,11 +355,11 @@ void polishing(mvStack *s)
 	      e.val = 1;
 	    }
    }
-      else if(current.parent->coor == current.coor + 1*G_LENGTH - 1)//5
+      else if(current.parent == current.coor + 1*G_LENGTH - 1)//5
       {
        if (type == 5)
        {
-         e.val+= 1.41421356f;
+         e.val+= 1.414213562;
 	      e.type = DRIVE;//1 = DRIVE
 	    }
      else
@@ -411,14 +372,14 @@ void polishing(mvStack *s)
 
 	      type = 5;
 	      e.type = DRIVE;
-	      e.val = 1.41421356f;
+	      e.val = 1.414213562;
 	    }	  
    }
-      else if(current.parent->coor == current.coor + 1*G_LENGTH)//6
+      else if(current.parent == current.coor + 1*G_LENGTH)//6
       {
        if (type == 6)
        {
-         e.val++;
+         e.val+=1;
 	      e.type = DRIVE;//1 = DRIVE
 	    }
      else
@@ -434,11 +395,11 @@ void polishing(mvStack *s)
 	      e.val = 1;
 	    }
    }
-      else if(current.parent->coor == current.coor + 1*G_LENGTH + 1)//7
+      else if(current.parent == current.coor + 1*G_LENGTH + 1)//7
       {
        if (type == 7)	
        {
-         e.val+=1.41421356f;
+         e.val+=1.414213562;
 	      e.type = DRIVE;//1 = DRIVE
 	    }
      else
@@ -450,14 +411,14 @@ void polishing(mvStack *s)
 
 	      type = 7;
 	      e.type = DRIVE;
-	      e.val = 1.41421356f;
+	      e.val = 1.414213562;
 	    }
    }
    else
    {
      printf("Error path not found\n");
    }
-   current = *(current.parent);
+   current = graphe[current.parent];
  }
  push(s,e);
  push(s,r);
@@ -475,7 +436,10 @@ mvStackElement pop(mvStack *s)
 void push(mvStack *s,mvStackElement item)
 {
   if(stack_full(s))
+  {
+    printf("stack full \n");
     exit(1);
+  }
   s->items[s->top++]=item;
 }
 
@@ -498,7 +462,7 @@ void stack_clear(mvStack *s)
   s->top = 0;
   for(int i = 0; i<STACK_SIZE;i++)
   {
-    s->items[i].val = 0.f;
+    s->items[i].val = 0;
     s->items[i].type = 0;
   }
 }
@@ -517,7 +481,8 @@ mvStack stack;//pile d'instructions
 int8_t astarMv()
 {
   stopMovement = 0;
-  
+
+  disableAvoidance();   
   set_detection_behaviour(BEHAVIOUR_ASTAR); 
   //init graphe
   uint8_t i = 0;
@@ -525,7 +490,7 @@ int8_t astarMv()
   {
     graphe[i].coor = i;
     graphe[i].parent = 0;
-    graphe[i].remainDist = 0;
+    //graphe[i].remainDist = 0;
     graphe[i].crossedDist = 0;
     if(graphe[i].type != OBSTACLE)
     {
@@ -536,16 +501,22 @@ int8_t astarMv()
 
  int8_t bool = aStarLoop();
 
-  //si pas de chemin trouve 
+//supprimer les obstacle
+ clearGraphe();
+ initObstacle();
+
+//si pas de chemin trouve 
  if(bool == 0)
  {
   printf("no path found \n");
+  actionFailed();
   return 0;
 }
 
 
   stack_clear(&stack);//pile d'instructions
   
+
   polishing(&stack);
   mvStackElement currentElement;
   printf(" begin stack \n");
@@ -554,19 +525,19 @@ int8_t astarMv()
   while(currentElement.type != 0 && !stopMovement)
   {
     currentElement = pop(&stack);
-    printf ("stackelement:%f,%d \n",currentElement.val,currentElement.type);
+    printf ("stackelement:%f,%d \n",(double)currentElement.val,currentElement.type);
     printf("Starting movement\n");
     if(currentElement.type == DRIVE)
     {
-     trajectory_goto_d(&traj, END, currentElement.val*UNIT);
-
+     trajectory_goto_d(&traj, END, UNIT*(double)currentElement.val);
    }
    if(currentElement.type == ROTATE)
    {
-     trajectory_goto_a(&traj, END, currentElement.val*45);
+     trajectory_goto_a(&traj, END, 45*(double)currentElement.val);
    }
-
  }
+ 
+ enableAvoidance();
  while(!trajectory_is_ended(&traj));
  printf("end stack \n");
 
@@ -574,7 +545,11 @@ int8_t astarMv()
  {
   return 0;
 }
+
+printf("succeed \n");
 set_detection_behaviour(BEHAVIOUR_STOP);
+
+
 return 1;
 }
 
@@ -607,7 +582,8 @@ void stopAstarMovement()
 
 void putObstacle(uint8_t coor)
 {
-  graphe[coor].type = OBSTACLE;
+  if(coor < G_SIZE && coor >0)
+    graphe[coor].type = OBSTACLE;
 }
 void deleteObstacle(uint8_t coor)
 {
@@ -622,13 +598,8 @@ void printGraphe(void)
     {
       printf("\n");
     }
-    //if(graphe[i].parent == 0)
-    {
-      printf("%d ",graphe[i].type);
-    }
-    //else
-    {
-      //printf("%d\t",graphe[i].parent->coor);
-    }
+    
+    printf("%d ",graphe[i].type);
+    
   }
 }

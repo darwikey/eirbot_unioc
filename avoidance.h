@@ -25,6 +25,9 @@ uint8_t obstacleInTrajectory(uint8_t startCoor,uint8_t goalCoor);
 
 void set_detection_behaviour(enum detection_behaviour_t);
 
+void disableAvoidance(void);
 
+void clearGraphe(void);
 
+void enableAvoidance(void);
 #endif

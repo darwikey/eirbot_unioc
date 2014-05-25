@@ -119,9 +119,9 @@ void trajectory_removeStep(trajectory_manager_t *);
 
 int8_t get_couleur_depart(void);
 void traj_set_couleur_depart(int8_t couleur);
-void trajectory_goto_xy_pion(trajectory_manager_t *, trajectory_order_when_t when, double x, double y);
-void trajectory_goto_xy_backward(trajectory_manager_t *t,trajectory_order_when_t when, double x, double y);
-void trajectory_goto_xy_pion_backward(trajectory_manager_t *t,trajectory_order_when_t when, double x, double y);
+// void trajectory_goto_xy_pion(trajectory_manager_t *, trajectory_order_when_t when, double x, double y);
+// void trajectory_goto_xy_backward(trajectory_manager_t *t,trajectory_order_when_t when, double x, double y);
+// void trajectory_goto_xy_pion_backward(trajectory_manager_t *t,trajectory_order_when_t when, double x, double y);
 //corrige l'erreur des coordonnées pour ammener le pion au centre de la case
 void disableSpinning(void);
 void enableSpinning(void);

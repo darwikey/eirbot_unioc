@@ -319,6 +319,16 @@ void asserv_set_vitesse_normal(asserv_manager_t *t)
  quadramp_set_2nd_order_vars(&t->qramp_angle, 4, 4);//4,4
   quadramp_set_1st_order_vars(&t->qramp_angle, 150, 150);//200,200
 }
+
+void asserv_set_vitesse_fast(asserv_manager_t *t)
+{
+  quadramp_set_2nd_order_vars(&t->qramp_distance, 3, 3); // 3 3 
+  quadramp_set_1st_order_vars(&t->qramp_distance, 100, 100); // 1200 500
+
+ quadramp_set_2nd_order_vars(&t->qramp_angle, 4, 4);//4,4
+  quadramp_set_1st_order_vars(&t->qramp_angle, 300, 300);//200,200
+
+}
 void asserv_set_vitesse_ultrafast(asserv_manager_t *t)
 {
   quadramp_set_2nd_order_vars(&t->qramp_distance, 3000, 3000); // 3 3 

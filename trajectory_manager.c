@@ -80,6 +80,7 @@ static int8_t trajectory_add_point(trajectory_manager_t *t,trajectory_order_when
 {
   point.flags = 0;
   
+  printf("size %d \n",&point);
   // Si on a atteint la taille de la pile -1
   // TODO à améliorer !!
   if((t->last + 1) % TRAJECTORY_NB_POINT_MAX == t->current) {
@@ -184,7 +185,12 @@ uint8_t trajectory_is_ended(trajectory_manager_t *t)
     {
       antipatinage_scheduler();
     }
-	if(t->current == t->last) {
+      int32_t encodeur_gauche = U_ENC0;
+  int32_t encodeur_droit = U_ENC2;
+  int32_t moteur_gauche = U_ENC1;
+  int32_t moteur_droit = U_ENC3;
+ 
+ 	if(t->current == t->last) {
 		return 1;
 	} else {
 		return 0;
@@ -590,22 +596,22 @@ void trajectory_goto_xy_pion_backward(trajectory_manager_t *t,trajectory_order_w
 
 // EIRBUG //
 
-int8_t trajectory_goto_pos(trajectory_manager_t* t, trajectory_order_when_t when, int16_t x, int16_t y, int16_t a) {
-  int16_t actual_pos_x,actual_pos_y,actual_pos_a;
-  position_abs(t->pm, &actual_pos_x, &actual_pos_y, &actual_pos_a);
-  x -= actual_pos_x;
-  y -= actual_pos_y;
-  y = -y;
-  //a = ( a - actual_pos_a + 360)%360; // Euuhh.. à supprimer
+// int8_t trajectory_goto_pos(trajectory_manager_t* t, trajectory_order_when_t when, int16_t x, int16_t y, int16_t a) {
+//   int16_t actual_pos_x,actual_pos_y,actual_pos_a;
+//   position_abs(t->pm, &actual_pos_x, &actual_pos_y, &actual_pos_a);
+//   x -= actual_pos_x;
+//   y -= actual_pos_y;
+//   y = -y;
+//   //a = ( a - actual_pos_a + 360)%360; // Euuhh.. à supprimer
 
-  double ia = atan2((double)y,(double)x)*180/M_PI - actual_pos_a;
-  double d = sqrt(x*x + y*y);
-  double fa = (double)a;
+//   double ia = atan2((double)y,(double)x)*180/M_PI - actual_pos_a;
+//   double d = sqrt(x*x + y*y);
+//   double fa = (double)a;
 
-  trajectory_goto_arel(t, when, ia);
-  trajectory_goto_d(t, when, d);
-  trajectory_goto_a(t, when, fa);
-}
+//   trajectory_goto_arel(t, when, ia);
+//   trajectory_goto_d(t, when, d);
+//   trajectory_goto_a(t, when, fa);
+// }
 
 void enableSpinning()
 {

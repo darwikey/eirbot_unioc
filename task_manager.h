@@ -5,8 +5,7 @@
 #include <stdlib.h>
 
 
-typedef unsigned char uint8_t;
-#define MAX_ACTION 10
+#define MAX_ACTION 16	
 #define FAILED 128
 #define DONE 64
 #define HIGH_PRIORITY 2
@@ -23,6 +22,8 @@ typedef struct task_manager
 
 void initTaskManager(task_manager_t *tm);
 void addTask(task_manager_t *tm, uint8_t(*action)(uint8_t), uint8_t priority, uint8_t param);
-uint8_t doNext(task_manager_t *tm);
+uint8_t doNextTask(task_manager_t *tm);
+void actionFailed(void);
+uint8_t actionIsFailed(void);
 
 #endif

@@ -2,6 +2,9 @@
 
 uint8_t perfectRoad = 1;
 
+uint8_t isFailed = 0;
+
+
 void rmFailedFlag(task_manager_t *tkm);
 uint8_t allRemainFailed(task_manager_t *tkm);
 
@@ -27,14 +30,16 @@ void addTask(task_manager_t *tkm, uint8_t(*action)(uint8_t), uint8_t priority, u
   }
 }
 
-uint8_t doNext(task_manager_t *tkm)
+uint8_t doNextTask(task_manager_t *tkm)
 {
-  int8_t next = -1;//mettre un int8_t
-  uint8_t i;
-  uint8_t finished = 0;
   
+  int8_t next = -1;//mettre un int8_t
+  uint8_t i = 0;
+  uint8_t finished = 0;
+  isFailed=0;
+
   if (allRemainFailed(tkm))
-  {
+  { 
     rmFailedFlag(tkm);
     perfectRoad = 0;
   }
@@ -52,31 +57,43 @@ uint8_t doNext(task_manager_t *tkm)
       }
       else
       {
-        //by priority
+       // by priority
         if (next == -1)
         {
-          next = i;
-          finished = 1;
+           next = i;
+           finished = 1;
         }//les failed on moins de priorite que les pas failed
-        if (next != -1 &&//probleme de priorite a faire
+        if (next != -1 &&
           (tkm->flags[i] % FAILED > tkm->flags[next] % FAILED || (!(tkm->flags[i] & FAILED) && tkm->flags[next] & FAILED)))
         {
-          next = i;
-          finished = 1;
+           next = i;
+           finished = 1;
         }
       }
     }
   }
   if (finished)
   {
-    printf("action n: %d \n", next);
-    tkm->flags[next] |= tkm->action[next](tkm->par[next]);
-    printf("retourne %d \n", tkm->flags[next]);
-    //if (tkm->flags[next] & FAILED)perfectRoad = 2;
-    return 1;
+     printf("action n: %d \n", next);
+     isFailed = 0;
+     tkm->flags[next] |= tkm->action[next](tkm->par[next]);
+     printf("retourne %d \n", tkm->flags[next]);
+    // //if (tkm->flags[next] & FAILED)perfectRoad = 2;
+     return 1;
   }
-  else return 0;//we have done everything(never happen ^^)
+  else return 0;//we have done everything
 }
+
+void actionFailed(void)
+{
+  isFailed = 1;
+}
+
+uint8_t actionIsFailed(void)
+{
+  return isFailed;
+}
+
 
 uint8_t allRemainFailed(task_manager_t *tkm)
 {
