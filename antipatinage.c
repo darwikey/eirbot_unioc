@@ -57,7 +57,7 @@ void antipatinage_scheduler(void)
   //printf("ratio Droit %ld ratio Gauche %ld \n",ratio_droit,ratio_gauche);
 
   //if(abs(encodeur_gauche - old_encodeur_gauche) < epsEnc && abs(moteur_gauche -old_moteur_gauche) > epsMoteur)
-  if(ratio_gauche > 60 * abs(encodeur_gauche - old_encodeur_gauche) && !isnan(ratio_gauche))
+  if(ratio_gauche > RATIO * abs(encodeur_gauche - old_encodeur_gauche) && ratio_gauche >DIST_MIN)
   {
     printf("PATINAGE gauche!!!!\n");
     // printf("ratio Droit %ld ratio Gauche %ld \n",ratio_droit,ratio_gauche);
@@ -69,7 +69,7 @@ void antipatinage_scheduler(void)
       avance = 1;
     }
   }//abs(encodeur_droit - old_encodeur_droit) > 2
-  else if(ratio_droit > 60 * abs(encodeur_droit - old_encodeur_droit) && !isnan(ratio_droit))
+  else if(ratio_droit > RATIO * abs(encodeur_droit - old_encodeur_droit) && ratio_gauche >DIST_MIN)
   { 
     printf("PATINAGE droite!!!!\n");
     // printf("ratio Droit %ld ratio Gauche %ld \n",ratio_droit,ratio_gauche);
@@ -85,7 +85,7 @@ void antipatinage_scheduler(void)
     k = 0;
   }
 
-  if(k > 5)patinage = 1;
+  if(k > 3)patinage = 1;
 
 
   if(patinage)  

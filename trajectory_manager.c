@@ -185,10 +185,6 @@ uint8_t trajectory_is_ended(trajectory_manager_t *t)
     {
       antipatinage_scheduler();
     }
-      int32_t encodeur_gauche = U_ENC0;
-  int32_t encodeur_droit = U_ENC2;
-  int32_t moteur_gauche = U_ENC1;
-  int32_t moteur_droit = U_ENC3;
  
  	if(t->current == t->last) {
 		return 1;
