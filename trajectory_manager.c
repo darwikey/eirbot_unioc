@@ -133,7 +133,7 @@ static int8_t trajectory_add_point(trajectory_manager_t *t,trajectory_order_when
       //TODO: env notif au gestionnaire d'erreur... plus de point dispo
       //      que faire ?
       //      pour l'instant on saute le point actuel..
-      printf("BUGGGG traj pas assez de point dispo %ld %ld\n",t->last,t->current);
+     // printf("BUGGGG traj pas assez de point dispo %ld %ld\n",t->last,t->current);
       trajectory_next(t);
     }
     when = (t->current + when) % TRAJECTORY_NB_POINT_MAX;

@@ -211,14 +211,15 @@ int main(void)
 	while(MAXIME);//boucle anti_maxime
 	// while(1)
 	// {
-	// 	printf("gp2 = %d ",adc_get_value(ADC_REF_AVCC | MUX_ADC0));
+	// 	printf("gp2r = %d ,gp2l = %d ,gp2m = %d \n",adc_get_value(ADC_REF_AVCC | MUX_ADC0),adc_get_value(ADC_REF_AVCC | MUX_ADC1),adc_get_value(ADC_REF_AVCC | MUX_ADC2));
 	// }
 
 	//avoidance_init();
 	//antipatinage_init();
 
-	// test_evitement();
-	// while(1);
+	test_evitement();
+	while(1);
+
 
 
 	if(team == RED)
@@ -242,7 +243,7 @@ int main(void)
 	// while(!trajectory_is_ended(&traj));
 
 
-
+		asserv_set_vitesse_normal(&asserv);
 		initTaskManager(&tkm);
 
 
@@ -253,13 +254,10 @@ int main(void)
 		// addTask(&tkm, &returnFire, HIGH_PRIORITY, R2);
 		addTask(&tkm, &takeFruitRed, HIGH_PRIORITY, team);
 		addTask(&tkm, &putPaint, HIGH_PRIORITY, team);
-
 		addTask(&tkm, &findPosition, HIGH_PRIORITY, REDPAINT);
 		addTask(&tkm, &returnFire, HIGH_PRIORITY, Y1);
-		addTask(&tkm, &throwSpears, HIGH_PRIORITY, YELLOW);
+		//addTask(&tkm, &throwSpears, HIGH_PRIORITY, YELLOW);
 		addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
-
-
 		addTask(&tkm, &returnFire, HIGH_PRIORITY, Y3);
 		addTask(&tkm, &takeFruitYellow, HIGH_PRIORITY, team);
 		addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
@@ -269,9 +267,7 @@ int main(void)
 		while (TIRETTE);
 		printf("begin match \n");
 
-
 		avoidance_init();
-
 
 		while(doNextTask(&tkm));
 		printf("finish \n");
@@ -291,15 +287,15 @@ int main(void)
 		while(!trajectory_is_ended(&traj));
 
 		// addTask(&tkm, &returnFire, LOW_PRIORITY, R1);
-		addTask(&tkm, &throwSpears, LOW_PRIORITY, YELLOW);
 		addTask(&tkm, &returnFire, LOW_PRIORITY, Y2);
-//		addTask(&tkm, &returnFire, HIGH_PRIORITY, Y3);
+		addTask(&tkm, &throwSpears, LOW_PRIORITY, YELLOW);
+		// addTask(&tkm, &returnFire, HIGH_PRIORITY, Y3);
 		addTask(&tkm, &takeFruitYellow, HIGH_PRIORITY, team);
 		addTask(&tkm, &putPaint, HIGH_PRIORITY, team);
 
 		addTask(&tkm, &findPosition, HIGH_PRIORITY, YELLOWPAINT);
 		addTask(&tkm, &returnFire, HIGH_PRIORITY, R1);
-		addTask(&tkm, &throwSpears, HIGH_PRIORITY, RED);
+		//addTask(&tkm, &throwSpears, HIGH_PRIORITY, RED);
 		addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
 
 		
@@ -398,14 +394,14 @@ void test_evitement(void)
 		// addTask(&tkm, &returnFire, LOW_PRIORITY, R1);
 // 		addTask(&tkm, &throwSpears, LOW_PRIORITY, YELLOW);
 // 		addTask(&tkm, &returnFire, LOW_PRIORITY, Y2);
-// //		addTask(&tkm, &returnFire, HIGH_PRIORITY, Y3);
+// //	addTask(&tkm, &returnFire, HIGH_PRIORITY, Y3);
 // 		addTask(&tkm, &takeFruitYellow, HIGH_PRIORITY, team);
-	addTask(&tkm, &putPaint, HIGH_PRIORITY, team);
+//	addTask(&tkm, &putPaint, HIGH_PRIORITY, team);
 
-	addTask(&tkm, &findPosition, HIGH_PRIORITY, YELLOWPAINT);
+//	addTask(&tkm, &findPosition, HIGH_PRIORITY, YELLOWPAINT);
 		// addTask(&tkm, &returnFire, HIGH_PRIORITY, R1);
 		// addTask(&tkm, &throwSpears, HIGH_PRIORITY, RED);
-		// addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
+		 addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
 
 
 		// addTask(&tkm, &returnFire, HIGH_PRIORITY, R3);
@@ -414,7 +410,7 @@ void test_evitement(void)
 
 		// addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
 		// addTask(&tkm, &returnFire, HIGH_PRIORITY, R2);
-
+	asserv_set_vitesse_normal(&asserv);
 
 	while (TIRETTE);
 	printf("begin match \n");
@@ -604,7 +600,8 @@ void test_evitement(void)
 		while(!astarMv() && !actionIsFailed());
 		if(actionIsFailed())return DONE;
 
-		asserv_set_vitesse_low(&asserv);
+		asserv_set_vitesse_normal(&asserv);
+		disableAvoidance();
 		trajectory_goto_a(&traj, END, -90);
 		trajectory_goto_d(&traj, END, -200);
 		while(!trajectory_is_ended(&traj))
@@ -615,6 +612,7 @@ void test_evitement(void)
 				asserv_stop(&asserv);
 			}
 		}
+		enableAvoidance();
 		if(actionIsFailed())return DONE;
 		trajectory_goto_d(&traj, END, 20 - DIST_CENTRE);
 		while(!trajectory_is_ended(&traj));
@@ -785,13 +783,22 @@ uint8_t putFruit(uint8_t side)
 		trajectory_goto_a(&traj, END, 0);      	     
 		while(!trajectory_is_ended(&traj));
 		if(actionIsFailed())return FAILED;
+
+		disableSpinning();
 		trajectory_goto_d(&traj, END, -40);
-		while(!trajectory_is_ended(&traj));
-		
+		while(!trajectory_is_ended(&traj))
+		{
+			if(REPOSITIONING)
+			{
+				trajectory_reinit(&traj);
+				asserv_stop(&asserv);
+			}
+		}
+		enableSpinning();
 		//se recaller?
 
 		throwSpears(YELLOW);
-		trajectory_goto_d(&traj, END, -3);
+		trajectory_goto_d(&traj, END, 8);
 		if(k)
 		{
 			trajectory_goto_a(&traj, END, -90);	
@@ -818,25 +825,34 @@ uint8_t putFruit(uint8_t side)
 	else
 	{
 
-		set_goalCoor(G_LENGTH * 3 + 7);
+		set_goalCoor(G_LENGTH * 3 + 4);
 
 
 		if (eps > EPSILON)
 		{
 			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
-		}    
+		}  
 		while(!astarMv() && !actionIsFailed());
 		if(actionIsFailed())return FAILED;
 
-		trajectory_goto_a(&traj, END, 0);  
+		trajectory_goto_a(&traj, END, 0); 
 
 		while(!trajectory_is_ended(&traj));
 		if(actionIsFailed())return FAILED;    	     
 		trajectory_goto_d(&traj, END, -40);
 
-		while(!trajectory_is_ended(&traj));
-		throwSpears(YELLOW);
-		trajectory_goto_d(&traj, END, -3);
+		disableSpinning();
+		while(!trajectory_is_ended(&traj))
+		{
+			if(REPOSITIONING)
+			{
+				trajectory_reinit(&traj);
+				asserv_stop(&asserv);
+			}
+		}
+		enableSpinning();
+		throwSpears(RED);
+		trajectory_goto_d(&traj, END, 8);
 
 		if(k)
 		{
@@ -896,14 +912,18 @@ uint8_t putPaint(uint8_t side)
 	printf("angle %lf \n",position_get_angle_deg(&pos));
 	trajectory_goto_a(&traj, END, 180);
 	trajectory_goto_d(&traj, END, 10);
-	trajectory_goto_a(&traj, END, 0);
+	
 	while(!trajectory_is_ended(&traj));
+	trajectory_goto_a(&traj, END, 0);
+	
+	asserv_set_vitesse_normal(&asserv);
 	if(actionIsFailed())return FAILED;
+	disableAvoidance();
 	printf("angle %lf \n",position_get_angle_deg(&pos));
 	trajectory_goto_d(&traj, END, -100);
 	while(!trajectory_is_ended(&traj));			
 
-	
+	enableAvoidance();
 
 	return DONE;
 }

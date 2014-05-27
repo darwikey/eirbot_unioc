@@ -27,7 +27,7 @@ uint16_t gp2_get_dist(enum gp2_type type)
   if(type == GP2_RIGHT)
   {
 
-    long tab[11] = {517 ,486 ,428 ,372 ,315 ,276 ,248 ,217 ,200 ,177 ,164};
+    long tab[5] = {517 ,486 ,428 ,372 ,315 };
 	// récupère les tensions des GP2
     gp2_value = adc_get_value(ADC_REF_AVCC | MUX_ADC0);
     printf("gp2right: %ld  \n",gp2_value);
@@ -36,7 +36,7 @@ uint16_t gp2_get_dist(enum gp2_type type)
     //   if(gp2_value<tab[dist])
     //     break;
     // }
-    for(uint8_t i = 0;i < 11;i++)
+    for(uint8_t i = 0;i < 5;i++)
     {
       if(gp2_value<tab[i])
         dist++;
@@ -46,12 +46,12 @@ uint16_t gp2_get_dist(enum gp2_type type)
   }
   else if(type == GP2_LEFT)
   {
-    long tab[11] = {552, 514, 444, 385, 328, 290, 259, 234, 212, 191, 178};
+    long tab[5] = {552, 514, 444, 385, 328 };
 
     gp2_value  = adc_get_value(ADC_REF_AVCC | MUX_ADC1);
     printf("gp2left: %ld \n ",gp2_value);
 
-    for(uint8_t i = 0;i < 11;i++)
+    for(uint8_t i = 0;i < 5;i++)
     {
       if(gp2_value<tab[i])
         dist++;
@@ -62,12 +62,12 @@ uint16_t gp2_get_dist(enum gp2_type type)
   }
   else if(type == GP2_MIDDLE)
   {
-    long tab[3] = {616, 470, 320};
+    long tab[2] = {616, 470};
 
     gp2_value  = adc_get_value(ADC_REF_AVCC | MUX_ADC2);
     printf("gp2middle: %ld \n ",gp2_value);
 
-    for(uint8_t i = 0;i < 3;i++)
+    for(uint8_t i = 0;i < 2;i++)
     {
       if(gp2_value<tab[i])
         dist++;
@@ -78,7 +78,7 @@ uint16_t gp2_get_dist(enum gp2_type type)
   }
   printf("dist = %d \n", dist);
 
-  if((type == GP2_RIGHT && dist<11) || (type == GP2_LEFT && dist < 11) || (type == GP2_MIDDLE && dist < 3))
+  if((type == GP2_RIGHT && dist<5) || (type == GP2_LEFT && dist < 5) || (type == GP2_MIDDLE && dist < 2))
     return dist * 5 + 10 + offset;//retourne la distance arrondi au 5 cm supérieur
   else
     return UINT16_MAX;

@@ -39,11 +39,11 @@ void adversary_detection_traj(void*p)
   // désactive le scheduler pour éviter qu'il se déclenche pendant le calcul
   scheduler_del_event(id_scheduler);
 
-  uint8_t coorD = gp2_get_coor_obstacle(GP2_RIGHT, 40);
+  uint8_t coorD = gp2_get_coor_obstacle(GP2_RIGHT, 20);
 
-  uint8_t coorG = gp2_get_coor_obstacle(GP2_LEFT,40);
+  uint8_t coorG = gp2_get_coor_obstacle(GP2_LEFT,20);
 
-  uint8_t coorM = gp2_get_coor_obstacle(GP2_MIDDLE,40);
+  uint8_t coorM = gp2_get_coor_obstacle(GP2_MIDDLE,20);
 
   // check si on a détecté quelque chose, -1 = rien
   uint8_t coor = 0;
@@ -122,7 +122,7 @@ void adversary_detection_traj(void*p)
    }
 
   // réactive le scheduler
-   id_scheduler = __scheduler_add_event(SCHEDULER_PERIODICAL, adversary_detection_traj, NULL, 500000/SCHEDULER_UNIT, 2);
+   id_scheduler = __scheduler_add_event(SCHEDULER_PERIODICAL, adversary_detection_traj, NULL, 50000/SCHEDULER_UNIT, 2);
  }
 
  
@@ -133,7 +133,7 @@ void adversary_detection_traj(void*p)
  {
    int16_t x = (int16_t) position_x;
    int16_t y = (int16_t) position_y;
- 
+
    //printf dans la flash
    // printf_P(PSTR("go_to_node ;   actuellement : (x: %d , y: %d);   "),x/UNIT, y/UNIT);
 
@@ -311,20 +311,21 @@ uint8_t obstacleInTrajectory(uint8_t startCoor,uint8_t goalCoor)
   while(current != startCoor)
   {
     if(graphe[current].type == OBSTACLE)
-     {printf("obstacle in the trajectory \n");
-   return 1;
- }
- current = graphe[current].parent;
-}
-return 0;
+    {
+      printf("obstacle in the trajectory \n");
+      return 1;
+    }
+    current = graphe[current].parent;
+  }
+  return 0;
 }
 
 void disableAvoidance(void)
 {
   if(id_scheduler != 0)
   {
-  scheduler_del_event(id_scheduler);
-}
+    scheduler_del_event(id_scheduler);
+  }
 }
 
 void enableAvoidance(void)

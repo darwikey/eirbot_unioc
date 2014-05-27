@@ -85,7 +85,7 @@ void antipatinage_scheduler(void)
     k = 0;
   }
 
-  if(k > 3)patinage = 1;
+  if(k > 2)patinage = 1;
 
 
   if(patinage)  
