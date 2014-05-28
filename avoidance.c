@@ -41,33 +41,33 @@ void adversary_detection_traj(void*p)
 
   uint8_t coorD = gp2_get_coor_obstacle(GP2_RIGHT, 20);
 
-  uint8_t coorG = gp2_get_coor_obstacle(GP2_LEFT,20);
+  uint8_t coorG = gp2_get_coor_obstacle(GP2_LEFT, 20);
 
-  uint8_t coorM = gp2_get_coor_obstacle(GP2_MIDDLE,20);
+  uint8_t coorM = gp2_get_coor_obstacle(GP2_MIDDLE, 20);
 
   // check si on a détecté quelque chose, -1 = rien
   uint8_t coor = 0;
-  uint8_t obstacle = 0;
+  uint8_t isNewObstacle = 0;
 
   if (coorD != UINT8_MAX || coorG != UINT8_MAX || coorM != UINT8_MAX)
   { 
-
-    if(coorD != UINT8_MAX)
+// obstacle = 1;
+    if(coorM != UINT8_MAX)
     {
-     obstacle = (graphe[coorD].type != OBSTACLE);
-     coor = coorD;
-     //printf("coorD %d\n",coorD );
+     isNewObstacle = (graphe[coorM].type != OBSTACLE);
+     coor = coorM;
    }
-   else if(coorG != UINT8_MAX)
+   if(coorG != UINT8_MAX && !isNewObstacle)
    {
-     obstacle = (graphe[coorG].type != OBSTACLE);
+     isNewObstacle = (graphe[coorG].type != OBSTACLE);
      coor = coorG;
      //printf("coorG %d\n",coorG );
    }
-   else if(coorM != UINT8_MAX)
+   if(coorD != UINT8_MAX && !isNewObstacle)
    {
-     obstacle = (graphe[coorM].type != OBSTACLE);
-     coor = coorM;
+     isNewObstacle = (graphe[coorD].type != OBSTACLE);
+     coor = coorD;
+     //printf("coorD %d\n",coorD );
    }
 
    if(coor != 0)
@@ -76,10 +76,10 @@ void adversary_detection_traj(void*p)
    }
       // Si c'est un obstacle non connu on panique
 
-   if(obstacle)
+   if(isNewObstacle)
    {
      printf("stop the trajectory \n");
-
+     // trajectory_pause(&traj);
      switch (detection_behaviour)
      {
        case BEHAVIOUR_STOP:
@@ -87,9 +87,9 @@ void adversary_detection_traj(void*p)
        break;
 
        case BEHAVIOUR_ASTAR:
-       if(new_obstacle(coor))
-       {
-        printGraphe();
+       new_obstacle(coor);
+       
+       printGraphe();
 		  if(obstacleInTrajectory(get_startCoor(),get_goalCoor()))//need goalcoor
       {
 
@@ -101,63 +101,62 @@ void adversary_detection_traj(void*p)
 		      //trajectory_resume(&traj);
         //printf("succeed to stop trajectory \n");
         
-  		      go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));//attention x et y inverser
-          }
-        }  
-        else
-        {
-         // printf("OK obstacle doesn't matter\n");
-        }
-        break;
+  		  go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));//attention x et y inverser
       }
+      break;
     }
-      else // rien détecté
-      {
-       if(trajectory_is_paused(&traj))
-       {
+  }
+  else // rien détecté
+  {
+   if(trajectory_is_paused(&traj))
+   {
          // printf("resume the trajectory\n");
-         trajectory_resume(&traj);
-       }
-     }
+     trajectory_resume(&traj);
    }
-
-  // réactive le scheduler
-   id_scheduler = __scheduler_add_event(SCHEDULER_PERIODICAL, adversary_detection_traj, NULL, 50000/SCHEDULER_UNIT, 2);
  }
+}
+if(trajectory_is_paused(&traj) && isNewObstacle == 0)
+{
+         // printf("resume the trajectory\n");
+ trajectory_resume(&traj);
+}
+  // réactive le scheduler
+id_scheduler = __scheduler_add_event(SCHEDULER_PERIODICAL, adversary_detection_traj, NULL, 50000/SCHEDULER_UNIT, 2);
+}
 
- 
+
 // Planifie une trajectoire pour aller au noeud le plus proche de sa destination
 
 
- void go_to_node(double position_x, double position_y)
- {
-   int16_t x = (int16_t) position_x;
-   int16_t y = (int16_t) position_y;
+void go_to_node(double position_x, double position_y)
+{
+ int16_t x = (int16_t) position_x;
+ int16_t y = (int16_t) position_y;
 
    //printf dans la flash
    // printf_P(PSTR("go_to_node ;   actuellement : (x: %d , y: %d);   "),x/UNIT, y/UNIT);
 
-   uint8_t goalCoor = get_goalCoor();
-   uint8_t bestCoor = 0;
-   uint16_t bestDist = UINT16_MAX;
+ uint8_t goalCoor = get_goalCoor();
+ uint8_t bestCoor = 0;
+ uint16_t bestDist = UINT16_MAX;
 
-   uint16_t boxX = (uint16_t)(x  - x%UNIT);
-   uint16_t boxY = (uint16_t)(y  - y%UNIT);
+ uint16_t boxX = (uint16_t)(x  - x%UNIT);
+ uint16_t boxY = (uint16_t)(y  - y%UNIT);
 
-   if(!isOutOfGraphe(boxX, boxY) && !isObstacle(boxX, boxY))
-   {
-    uint16_t dist = ((goalCoor%G_LENGTH)*UNIT - boxX)*((goalCoor%G_LENGTH)*UNIT - boxX) 
-    + ((goalCoor/G_LENGTH)*UNIT - boxY)*((goalCoor/G_LENGTH)*UNIT - boxY);
+ if(!isOutOfGraphe(boxX, boxY) && !isObstacle(boxX, boxY))
+ {
+  uint16_t dist = ((goalCoor%G_LENGTH)*UNIT - boxX)*((goalCoor%G_LENGTH)*UNIT - boxX) 
+  + ((goalCoor/G_LENGTH)*UNIT - boxY)*((goalCoor/G_LENGTH)*UNIT - boxY);
 
     // printf("distgoal: %d x y",dist);
-    if(dist < bestDist)
-    {
-     bestDist = dist;
-     bestCoor = boxX/UNIT + G_LENGTH*(y/UNIT);
-   }
+  if(dist < bestDist)
+  {
+   bestDist = dist;
+   bestCoor = boxX/UNIT + G_LENGTH*(y/UNIT);
  }
- if(!isOutOfGraphe(boxX+UNIT, boxY) && !isObstacle(boxX+UNIT, boxY))
- {
+}
+if(!isOutOfGraphe(boxX+UNIT, boxY) && !isObstacle(boxX+UNIT, boxY))
+{
 
   uint16_t dist = ((goalCoor%G_LENGTH)*UNIT - UNIT - boxX) * ((goalCoor%G_LENGTH)*UNIT- UNIT - boxX) 
   + ((goalCoor/G_LENGTH)*UNIT - boxY)*((goalCoor/G_LENGTH)*UNIT - boxY);

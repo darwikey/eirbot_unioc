@@ -98,6 +98,7 @@ uint8_t returnFire(uint8_t fireNb);
 void stopAvoid(uint8_t fireNb);
 void avoidFire(uint8_t fireNb);
 
+void homologation(void);
 uint8_t calibrateGP2(void);
 
 
@@ -127,18 +128,6 @@ int main(void)
 	/////////////////////////////////////
 	///TODO//////////////////////////////
 	/////////////////////////////////////
-	//(!!!)Debuger l'evitement 
-	//			verifier les valeurs des gp2
-	//			verifier l'emplacement des obstacles->(printGraphe)
-	//Retirer les obstacles apres 5 secs
-	//(gp2 Arriere pour autoriser la marche arriere)
-	//
-	//(!!!)Mettre en place les lanceurs de balles
-	//Faire le programme du lanceur de balle
-	//			Deux fonctions lancer balles mammouth jaune et mammouth
-	//Programmer la nouvelle carte Meca
-	//
-	//(!!!)Mettre le filet sur le robot principal (ou faire une PMI qui ne fait que lancer le filet)
 	//
 	//participer a la coupe
 	/////////////////////////////////////
@@ -217,10 +206,11 @@ int main(void)
 	//avoidance_init();
 	//antipatinage_init();
 
-	test_evitement();
-	while(1);
+	// homologation();
+	// while(1);
 
-
+	// test_evitement();
+	// while(1);	
 
 	if(team == RED)
 	{
@@ -234,7 +224,8 @@ int main(void)
 		enableSpinning();
 
 
-		trajectory_goto_d(&traj, END, 20);	
+		trajectory_goto_d(&traj, END, 20);
+		trajectory_goto_a(&traj, END, 55);
 		while(!trajectory_is_ended(&traj));
 	//
 	// trajectory_goto_a(&traj, END, 90);
@@ -284,6 +275,7 @@ int main(void)
 
 
 		trajectory_goto_d(&traj, END, 20);
+		trajectory_goto_a(&traj, END, -55);
 		while(!trajectory_is_ended(&traj));
 
 		// addTask(&tkm, &returnFire, LOW_PRIORITY, R1);
@@ -382,14 +374,12 @@ uint8_t mecaCom(uint8_t ordre)
 void test_evitement(void)
 {
 
-	disableSpinning();	
 
-	findPosition(team);
-	enableSpinning();
-
-
-	trajectory_goto_d(&traj, END, 20);
-	while(!trajectory_is_ended(&traj));
+	for(int i = 0;i < 32;i++)
+	{
+		trajectory_goto_arel(&traj, END, 45);
+		while(!trajectory_is_ended(&traj));
+	}
 
 		// addTask(&tkm, &returnFire, LOW_PRIORITY, R1);
 // 		addTask(&tkm, &throwSpears, LOW_PRIORITY, YELLOW);
@@ -401,7 +391,7 @@ void test_evitement(void)
 //	addTask(&tkm, &findPosition, HIGH_PRIORITY, YELLOWPAINT);
 		// addTask(&tkm, &returnFire, HIGH_PRIORITY, R1);
 		// addTask(&tkm, &throwSpears, HIGH_PRIORITY, RED);
-		 addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
+	// addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
 
 
 		// addTask(&tkm, &returnFire, HIGH_PRIORITY, R3);
@@ -410,19 +400,19 @@ void test_evitement(void)
 
 		// addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
 		// addTask(&tkm, &returnFire, HIGH_PRIORITY, R2);
-	asserv_set_vitesse_normal(&asserv);
+	// asserv_set_vitesse_normal(&asserv);
 
-	while (TIRETTE);
-	printf("begin match \n");
-
-
-	avoidance_init();
+	// while (TIRETTE);
+	// printf("begin match \n");
 
 
-	while(doNextTask(&tkm));
-		printf("finish \n");	// throwSpears(RED);
+	// avoidance_init();
 
-		printf("succeed");
+
+	// while(doNextTask(&tkm));
+	// 	printf("finish \n");	// throwSpears(RED);
+
+	// 	printf("succeed");
 
 		// trajectory_goto_d(&traj, END, 10);
 		// while(!trajectory_is_ended(&traj));
@@ -989,9 +979,6 @@ uint8_t throwSpears(uint8_t side)
 			mecaCom(LANCE_BALLE_AV);
 			trajectory_goto_d(&traj, END, -14.8);
 			while(!trajectory_is_ended(&traj));
-			
-
-
 		}
 		else
 		{
@@ -1084,6 +1071,7 @@ uint8_t returnFire(uint8_t fireNb)
 	{
 		printf("return R1 \n");
 		double eps = 0;
+
 		set_startCoor(position_get_coor_eps(&pos,&eps));
 		if(team == RED)
 		{
@@ -1092,6 +1080,7 @@ uint8_t returnFire(uint8_t fireNb)
 		else
 		{
 			set_goalCoor(G_LENGTH * 3 + 6);
+			asserv_set_vitesse_normal(&asserv);
 		}
 
 				//put a wall to avoid the wrong way		
@@ -1488,4 +1477,37 @@ void stopAvoid(uint8_t fireNb)
 		deleteObstacle(G_LENGTH * 8 + 10);
 		deleteObstacle(G_LENGTH * 8 + 11);
 	}
+}
+
+
+void homologation(void)
+{
+	disableSpinning();
+	findPosition(team);
+	trajectory_goto_d(&traj, END, 18);
+	if(team == RED)
+	{
+		trajectory_goto_a(&traj, END, 45);      	     
+	}
+	else
+	{
+		trajectory_goto_a(&traj, END, -45);	
+	}
+	while(!trajectory_is_ended(&traj));
+
+	enableSpinning();
+
+
+	asserv_set_vitesse_normal(&asserv);
+
+	while(TIRETTE);
+	avoidance_init();
+	if(team == RED)
+	{
+		returnFire(Y1);
+	}
+	else
+	{
+		returnFire(R1);
+	}		
 }

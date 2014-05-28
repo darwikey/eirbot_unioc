@@ -340,10 +340,10 @@ void asserv_set_vitesse_ultrafast(asserv_manager_t *t)
 void asserv_set_vitesse_low(asserv_manager_t *t)
 {
   quadramp_set_2nd_order_vars(&t->qramp_distance, 1, 1); // 3 3 
-  quadramp_set_1st_order_vars(&t->qramp_distance, 10, 10); // 1200 500
+  quadramp_set_1st_order_vars(&t->qramp_distance, 20, 20); // 1200 500
 
   quadramp_set_2nd_order_vars(&t->qramp_angle, 1, 1);//4,4
-  quadramp_set_1st_order_vars(&t->qramp_angle, 20, 20);//400,400
+  quadramp_set_1st_order_vars(&t->qramp_angle, 30, 30);//400,400
 
 }
 
