@@ -244,15 +244,16 @@ int main(void)
 		// addTask(&tkm, &returnFire, LOW_PRIORITY, R3);
 		// addTask(&tkm, &returnFire, HIGH_PRIORITY, R2);
 		addTask(&tkm, &takeFruitRed, HIGH_PRIORITY, team);
-		addTask(&tkm, &putPaint, HIGH_PRIORITY, team);
-		addTask(&tkm, &findPosition, HIGH_PRIORITY, REDPAINT);
+		// addTask(&tkm, &findPosition, HIGH_PRIORITY, REDPAINT);
 		addTask(&tkm, &returnFire, HIGH_PRIORITY, Y1);
 		//addTask(&tkm, &throwSpears, HIGH_PRIORITY, YELLOW);
 		addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
-		addTask(&tkm, &returnFire, HIGH_PRIORITY, Y3);
-		addTask(&tkm, &takeFruitYellow, HIGH_PRIORITY, team);
-		addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
-		addTask(&tkm, &returnFire, HIGH_PRIORITY, Y2);
+		addTask(&tkm, &putPaint, HIGH_PRIORITY, team);
+
+		// addTask(&tkm, &returnFire, HIGH_PRIORITY, Y3);
+		// addTask(&tkm, &takeFruitYellow, HIGH_PRIORITY, team);
+		// addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
+		// addTask(&tkm, &returnFire, HIGH_PRIORITY, Y2);
 
 
 		while (TIRETTE);
@@ -279,24 +280,25 @@ int main(void)
 		while(!trajectory_is_ended(&traj));
 
 		// addTask(&tkm, &returnFire, LOW_PRIORITY, R1);
-		addTask(&tkm, &returnFire, LOW_PRIORITY, Y2);
 		addTask(&tkm, &throwSpears, LOW_PRIORITY, YELLOW);
+		addTask(&tkm, &returnFire, LOW_PRIORITY, Y2);
 		// addTask(&tkm, &returnFire, HIGH_PRIORITY, Y3);
 		addTask(&tkm, &takeFruitYellow, HIGH_PRIORITY, team);
+		addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
 		addTask(&tkm, &putPaint, HIGH_PRIORITY, team);
 
-		addTask(&tkm, &findPosition, HIGH_PRIORITY, YELLOWPAINT);
-		addTask(&tkm, &returnFire, HIGH_PRIORITY, R1);
+		// addTask(&tkm, &findPosition, HIGH_PRIORITY, YELLOWPAINT);
+		//addTask(&tkm, &returnFire, HIGH_PRIORITY, R1);
 		//addTask(&tkm, &throwSpears, HIGH_PRIORITY, RED);
-		addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
+
 
 		
-		addTask(&tkm, &returnFire, HIGH_PRIORITY, R3);
+		// addTask(&tkm, &returnFire, HIGH_PRIORITY, R3);
 		
-		addTask(&tkm, &takeFruitRed, HIGH_PRIORITY, team);
+		// addTask(&tkm, &takeFruitRed, HIGH_PRIORITY, team);
 
-		addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
-		addTask(&tkm, &returnFire, HIGH_PRIORITY, R2);
+		// addTask(&tkm, &putFruit, HIGH_PRIORITY, team);
+		// addTask(&tkm, &returnFire, HIGH_PRIORITY, R2);
 		
 
 		while (TIRETTE);
@@ -423,7 +425,7 @@ void test_evitement(void)
 
 		// trajectory_goto_d(&traj, END, -100);
 		// while(!trajectory_is_ended(&traj));
-		while(1);
+	while(1);
 			// trajectory_goto_arel(&traj, END, 180);
 			// while(!trajectory_is_ended(&traj));
 			// trajectory_goto_d(&traj, END, 100);
@@ -435,31 +437,31 @@ void test_evitement(void)
 
 
 
-		double x = fxx_to_double(position_get_y_cm(&pos));
-		double y = fxx_to_double(position_get_x_cm(&pos));
-		printf("x : %lf    y : %lf\n", x, y);
-		printf("isOut  %d    obs %d\n", isOutOfGraphe(x, y), isObstacle(x, y));
+	double x = fxx_to_double(position_get_y_cm(&pos));
+	double y = fxx_to_double(position_get_x_cm(&pos));
+	printf("x : %lf    y : %lf\n", x, y);
+	printf("isOut  %d    obs %d\n", isOutOfGraphe(x, y), isObstacle(x, y));
 		//go_to_node(x, y,graphe);
 
-	}
+}
 
-	uint8_t findPosition(uint8_t type)
+uint8_t findPosition(uint8_t type)
+{
+	disableSpinning();
+
+	if(type == REDSTART)
 	{
-		disableSpinning();
+		asserv_set_vitesse_low(&asserv);
 
-		if(type == REDSTART)
+		trajectory_goto_d(&traj, END, -200);
+		while(!trajectory_is_ended(&traj))
 		{
-			asserv_set_vitesse_low(&asserv);
-
-			trajectory_goto_d(&traj, END, -200);
-			while(!trajectory_is_ended(&traj))
+			if(REPOSITIONING)
 			{
-				if(REPOSITIONING)
-				{
-					trajectory_reinit(&traj);
-					asserv_stop(&asserv);
-				}
+				trajectory_reinit(&traj);
+				asserv_stop(&asserv);
 			}
+		}
 		trajectory_goto_d(&traj, END, 20 - DIST_CENTRE);//dist centre = 12.2
 		while(!trajectory_is_ended(&traj));
 		trajectory_goto_arel(&traj, END, -90.0);
@@ -531,23 +533,24 @@ void test_evitement(void)
 	{
 
 		// asserv_set_vitesse_low(&asserv);
-		double eps = 0;
-		set_startCoor(position_get_coor_eps(&pos, &eps));
-		printf("start pos: %d eps %lf \n",position_get_coor_eps(&pos, &eps),eps);
+		// double eps = 0;
+		// set_startCoor(position_get_coor_eps(&pos, &eps));
+		// printf("start pos: %d eps %lf \n",position_get_coor_eps(&pos, &eps),eps);
 
-		set_goalCoor(G_LENGTH * 1 + 7);
+		// set_goalCoor(G_LENGTH * 1 + 7);
 
-		if (eps > EPSILON)
-		{
-			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
-		}    
-		while(!astarMv() && !actionIsFailed());
-		if(actionIsFailed())return DONE;
+		// if (eps > EPSILON)
+		// {
+		// 	go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
+		// }    
+		// while(!astarMv() && !actionIsFailed());
+		// if(actionIsFailed())return DONE;
 
 		asserv_set_vitesse_normal(&asserv);
 
 		trajectory_goto_a(&traj, END, 90);
 		trajectory_goto_d(&traj, END, -200);
+		disableSpinning();
 		while(!trajectory_is_ended(&traj))
 		{
 			if(REPOSITIONING)
@@ -556,16 +559,17 @@ void test_evitement(void)
 				asserv_stop(&asserv);
 			}
 		}
+		enableSpinning();
 		if(actionIsFailed())return DONE;
 
 		trajectory_goto_d(&traj, END, 20 - DIST_CENTRE);
 		while(!trajectory_is_ended(&traj));
-		if(actionIsFailed())return DONE;
+		// if(actionIsFailed())return DONE;
 		cli();
 
 		printf("pos asserv a : %lu %lu \n",U_ASSERV_ANGLE,U_PM_ANGLE);
 
-		position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(140.0), fxx_from_double(90.0));
+		position_set_xya_cm_deg(&pos,fxx_from_double(20.0),fxx_from_double(160.0), fxx_from_double(90.0));
 		asserv_stop(&asserv);
 
 
@@ -575,25 +579,25 @@ void test_evitement(void)
 	{
 
 
-		double eps = 0;
-		set_startCoor(position_get_coor_eps(&pos, &eps));
-		printf("start pos: %d eps %lf \n",position_get_coor_eps(&pos, &eps),eps);
+		// double eps = 0;
+		// set_startCoor(position_get_coor_eps(&pos, &eps));
+		// printf("start pos: %d eps %lf \n",position_get_coor_eps(&pos, &eps),eps);
 
-		set_goalCoor(G_LENGTH * 1 + 8);
+		// set_goalCoor(G_LENGTH * 1 + 8);
 
-		if (eps > EPSILON)
-		{
-			go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
-		}    
+		// if (eps > EPSILON)
+		// {
+		// 	go_to_node(fxx_to_double(position_get_y_cm(&pos)),fxx_to_double(position_get_x_cm(&pos)));
+		// }    
 
 
-		while(!astarMv() && !actionIsFailed());
-		if(actionIsFailed())return DONE;
+		// while(!astarMv() && !actionIsFailed());
+		// if(actionIsFailed())return DONE;
 
 		asserv_set_vitesse_normal(&asserv);
-		disableAvoidance();
 		trajectory_goto_a(&traj, END, -90);
 		trajectory_goto_d(&traj, END, -200);
+		disableSpinning();
 		while(!trajectory_is_ended(&traj))
 		{
 			if(REPOSITIONING)
@@ -602,7 +606,7 @@ void test_evitement(void)
 				asserv_stop(&asserv);
 			}
 		}
-		enableAvoidance();
+		enableSpinning();
 		if(actionIsFailed())return DONE;
 		trajectory_goto_d(&traj, END, 20 - DIST_CENTRE);
 		while(!trajectory_is_ended(&traj));
@@ -753,6 +757,7 @@ uint8_t takeFruitYellow(uint8_t type)
 
 uint8_t putFruit(uint8_t side)
 {
+	asserv_set_vitesse_normal(&asserv);
 	printf("begin take fruit");
 	double eps = 0;
 	set_startCoor(position_get_coor_eps(&pos,&eps));
@@ -889,7 +894,7 @@ uint8_t putPaint(uint8_t side)
 	}
 	else
 	{
-		set_goalCoor(G_LENGTH * 2 + 7);
+		set_goalCoor(G_LENGTH * 3 + 8);
 	}
 	if (eps > EPSILON)
 	{
@@ -912,7 +917,16 @@ uint8_t putPaint(uint8_t side)
 	printf("angle %lf \n",position_get_angle_deg(&pos));
 	trajectory_goto_d(&traj, END, -100);
 	while(!trajectory_is_ended(&traj));			
-
+	trajectory_goto_d(&traj, END, 3);
+	while(!trajectory_is_ended(&traj));
+	if(team == RED)
+	{
+		findPosition(REDPAINT);
+	}
+	else
+	{
+		findPosition(YELLOWPAINT);
+	}
 	enableAvoidance();
 
 	return DONE;
